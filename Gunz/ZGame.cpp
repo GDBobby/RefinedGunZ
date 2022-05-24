@@ -593,8 +593,6 @@ void ZGame::Update(float fElapsed)
 		OnReserveObserver();
 	}
 
-	UpdateCombo();
-
 #ifdef _WORLD_ITEM_
 	ZGetWorldItemManager()->update();
 #endif
@@ -2095,10 +2093,7 @@ void ZGame::OnExplosionGrenade(MUID uidOwner, rvector pos, float fDamage, float 
 		}
 
 		ZCharacter* pOwnerCharacter = g_pGame->m_CharacterManager.Find(uidOwner);
-		if (pOwnerCharacter) {
-			CheckCombo(pOwnerCharacter, Target, !bPushSkip);
-			CheckStylishAction(pOwnerCharacter);
-		}
+
 
 		float fActualDamage = fDamage * DamageRange;
 		float fRatio = ZItem::GetPiercingRatio(MWT_FRAGMENTATION, eq_parts_chest);
@@ -2159,10 +2154,6 @@ void ZGame::OnExplosionMagic(ZWeaponMagic *pWeapon, MUID uidOwner, rvector pos,
 			if (pWeapon->GetDesc()->CheckResist(pTarget, &fDamage))
 			{
 				ZCharacter* pOwnerCharacter = g_pGame->m_CharacterManager.Find(uidOwner);
-				if (pOwnerCharacter) {
-					CheckCombo(pOwnerCharacter, pTarget, true);
-					CheckStylishAction(pOwnerCharacter);
-				}
 
 				rvector dir = pos - (pTarget->GetPosition() + rvector(0, 0, 80));
 				Normalize(dir);
@@ -2206,10 +2197,6 @@ void ZGame::OnExplosionMagicNonSplash(ZWeaponMagic *pWeapon, MUID uidOwner, MUID
 		if(pWeapon->GetDesc()->CheckResist(pTarget,&fDamage))
 		{
 			ZCharacter* pOwnerCharacter = g_pGame->m_CharacterManager.Find( uidOwner );
-			if(pOwnerCharacter) {
-				CheckCombo(pOwnerCharacter, pTarget,true);
-				CheckStylishAction(pOwnerCharacter);
-			}
 
 			rvector dir=pos-(pTarget->GetPosition()+rvector(0,0,80));
 			Normalize(dir);
@@ -2368,10 +2355,6 @@ void ZGame::OnPeerShot_Melee(const MUID& uidOwner, float fShotTime)
 
 		HitEnemy = true;
 
-		if (pOwner == m_pMyCharacter) {
-			CheckCombo(m_pMyCharacter, pTar, !bPushSkip);
-			CheckStylishAction(m_pMyCharacter);
-		}
 	}
 
 	if (!HitEnemy) {
@@ -2499,8 +2482,6 @@ void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &d
 		pTarget->OnKnockback(dir, pItem->GetKnockbackForce()); // OnKnockback
 
 		ZGetSoundEngine()->PlaySound("blade_damage", AdjTargetPos, false, false, 0);
-
-		CheckCombo(pOwner, pTarget, true);
 	}
 
 	if (!bPlayerHit)
@@ -2794,8 +2775,6 @@ void ZGame::OnPeerShot_Range(MMatchCharItemParts sel_type, ZObject* pOwner, floa
 	auto CharOwner = MDynamicCast(ZCharacter, pOwner);
 	if (Info.HitEnemy)
 	{
-		CheckCombo(CharOwner, Info.sdi.Target, !Info.PushSkip);
-		CheckStylishAction(CharOwner);
 
 		auto CharTarget = MDynamicCast(ZCharacter, Info.sdi.Target);
 		if (CharTarget && pOwner == m_pMyCharacter)
@@ -3001,12 +2980,6 @@ void ZGame::OnPeerShot_Shotgun(ZItem *pItem, ZCharacter* pOwnerCharacter, float 
 					int(Origin.x), int(Origin.y), int(Origin.z));
 			}
 		}
-	}
-
-	if (HitEnemy) {
-		CheckStylishAction(pOwnerCharacter);
-		//(Michael) combos are broken fix them
-		CheckCombo(pOwnerCharacter, nullptr, true);
 	}
 
 	ZGetSoundEngine()->PlaySEFire(pItem->GetDesc(),
@@ -3976,91 +3949,6 @@ void ZGame::PostSyncReport()
 		}
 
 		ZPOSTCMD2(MC_MATCH_GAME_REPORT_TIMESYNC, MCmdParamUInt(nNowTime), MCmdParamUInt(nDataChecksum));
-	}
-}
-
-void ZGame::CheckCombo(ZCharacter *pOwnerCharacter, ZObject *pHitObject, bool bPlaySound)
-{
-	if(pOwnerCharacter==pHitObject) return;
-
-	ZCharacter *pTargetCharacter = ZGetGameInterface()->GetCombatInterface()->GetTargetCharacter();
-	if(!pTargetCharacter) return;
-
-	if(pTargetCharacter!=pOwnerCharacter) return;
-
-	if(pHitObject)
-	{
-		if(pHitObject->IsDead()) return;
-	}
-
-	if (IsPlayerObject(pHitObject))
-	{
-		if(m_Match.IsTeamPlay() && (pTargetCharacter->GetTeamID()==((ZCharacter*)(pHitObject))->GetTeamID()))
-			return;
-
-		if (m_Match.IsQuestDrived()) return;
-	}
-
-	UpdateCombo(true);
-
-	if (bPlaySound)
-	{
-		bool PlayHitSound = Z_AUDIO_HITSOUND;
-
-#ifdef DONT_STACK_HITSOUNDS
-		auto Now = GetTime();
-		PlayHitSound &= LastHitSoundTime != Now;
-		LastHitSoundTime = Now;
-#endif
-
-		if (PlayHitSound && ZGetSoundEngine()->Get3DSoundUpdate())
-		{
-			ZGetSoundEngine()->PlaySound("fx_myhit");
-		}
-	}
-}
-
-void ZGame::UpdateCombo(bool bShot)
-{
-	ZCharacter *pTargetCharacter = ZGetGameInterface()->GetCombatInterface()->GetTargetCharacter();
-	if(!pTargetCharacter) return;
-
-	// test
-	static DWORD nLastShotTime = GetGlobalTimeMS();
-	DWORD nNowTime = GetGlobalTimeMS();
-
-	if (bShot)
-	{
-		if(pTargetCharacter->GetStatus()->nCombo<2) {
-			ZGetScreenEffectManager()->AddHit();
-		}
-
-		if ((nNowTime - nLastShotTime) < 700)
-		{
-			pTargetCharacter->GetStatus()->nCombo++;
-			if (pTargetCharacter->GetStatus()->nCombo > MAX_COMBO)
-				pTargetCharacter->GetStatus()->nCombo = 1;
-		}
-		nLastShotTime = nNowTime;
-	}
-	else
-	{
-		if ((pTargetCharacter->GetStatus()->nCombo > 0) && ((nNowTime - nLastShotTime) > 1000))
-		{
-			pTargetCharacter->GetStatus()->nCombo = 0;
-		}
-	}
-}
-
-
-void ZGame::CheckStylishAction(ZCharacter* pCharacter)
-{
-	if (pCharacter->GetStylishShoted())
-	{
-		if (pCharacter == m_pMyCharacter)
-		{
-			ZGetScreenEffectManager()->AddCool();
-		}
 	}
 }
 

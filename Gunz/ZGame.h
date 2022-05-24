@@ -141,10 +141,6 @@ public:
 
 	void CheckMyCharDead(float fElapsed);
 
-	void CheckStylishAction(ZCharacter* pCharacter);
-	void CheckCombo(ZCharacter *pOwnerCharacter, ZObject *pHitObject, bool bPlaySound);
-	void UpdateCombo(bool bShot = false);
-
 	void PostBasicInfo();
 	void PostHPInfo();
 	void PostHPAPInfo();

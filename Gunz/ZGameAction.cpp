@@ -279,7 +279,6 @@ void ZGameAction::OnPeerSkill_Uppercut(ZCharacter *pOwnerCharacter)
 						ZGetEffectManager()->AddBloodEffect( tpos , -fTarDir);
 						ZGetEffectManager()->AddSlashEffect( tpos , -fTarDir , cm );
 
-						g_pGame->CheckCombo(pOwnerCharacter, pTar , true);
 						if (pTar == g_pGame->m_pMyCharacter) 
 						{
 							g_pGame->m_pMyCharacter->SetLastThrower(pOwnerCharacter->GetUID(), g_pGame->GetTime()+1.0f);
@@ -413,7 +412,6 @@ void ZGameAction::OnPeerSkill_Dash(ZCharacter *pOwnerCharacter)
 						if(ZGetGame()->IsAttackable(pOwnerCharacter,pTar))
 							pTar->OnDamagedSkill(pOwnerCharacter,pOwnerCharacter->GetPosition(),ZD_MELEE,MWT_DAGGER,fDamage,fRatio);
 
-						g_pGame->CheckCombo(pOwnerCharacter, pTar,true);
 					}
 
 				}//IsTeam
