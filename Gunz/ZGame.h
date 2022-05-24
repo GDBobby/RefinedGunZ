@@ -197,7 +197,7 @@ public:
 
 	ZGameTimer* GetGameTimer() { return &m_GameTimer; }
 	auto GetTickTime() const { return m_GameTimer.GetGlobalTick(); }
-	auto GetTime() const { return m_fTime; }
+	float GetTime() const { return m_fTime; }
 
 	MDataChecker* GetDataChecker() { return &m_DataChecker; }
 

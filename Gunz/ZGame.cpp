@@ -90,81 +90,6 @@ _USING_NAMESPACE_REALSPACE2
 
 #define ENABLE_CHARACTER_COLLISION
 
-struct RSnowParticle : public RParticle, CMemPoolSm<RSnowParticle>
-{
-	virtual bool Update(float fTimeElapsed)
-	{
-		RParticle::Update(fTimeElapsed);
-
-		if (position.z <= -1000.0f) return false;
-		return true;
-	}
-};
-
-class ZSnowTownParticleSystem
-{
-private:
-	RParticles* m_pParticles[3];
-	bool IsSnowTownMap()
-	{
-		if (!_strnicmp(ZGetGameClient()->GetMatchStageSetting()->GetMapName(), "snow", 4)) return true;
-
-		return false;
-	}
-public:
-	void Update(float fDeltaTime)
-	{
-		if (!IsSnowTownMap()) return;
-
-#define SNOW_PARTICLE_COUNT_PER_SECOND		400
-
-		int nSnowParticleCountPerSec = SNOW_PARTICLE_COUNT_PER_SECOND;
-		switch (ZGetConfiguration()->GetVideo()->nEffectLevel)
-		{
-		case Z_VIDEO_EFFECT_HIGH:	break;
-		case Z_VIDEO_EFFECT_NORMAL:	nSnowParticleCountPerSec = nSnowParticleCountPerSec / 4; break;
-		case Z_VIDEO_EFFECT_LOW:	nSnowParticleCountPerSec = nSnowParticleCountPerSec / 8; break;
-		default: nSnowParticleCountPerSec = 0; break;
-		}
-
-		int nCount = std::min(nSnowParticleCountPerSec * fDeltaTime, 20.0f);
-		for(int i=0;i<nCount;i++)
-		{
-			RParticle *pp=new RSnowParticle();
-			pp->ftime=0;
-			pp->position = rvector(RandomNumber(-8000.0f, 8000.0f), RandomNumber(-8000.0f, 8000.0f), 1500.0f);
-			pp->velocity = rvector(RandomNumber(-40.0f, 40.0f), RandomNumber(-40.0f, 40.0f), RandomNumber(-150.0f, -250.0f));
-			pp->accel=rvector(0,0,-5.f);
-
-			int particle_index = RandomNumber(0, 2);
-			if (m_pParticles[particle_index]) m_pParticles[particle_index]->push_back(pp);
-		}
-	}
-	void Create()
-	{
-		if (!IsSnowTownMap()) return;
-
-		for (int i = 0; i < 3; i++)
-		{
-			m_pParticles[i] = NULL;
-		}
-
-		m_pParticles[0] = RGetParticleSystem()->AddParticles("sfx/water_splash.bmp", 25.0f);
-		m_pParticles[1] = RGetParticleSystem()->AddParticles("sfx/water_splash.bmp", 10.0f);
-		m_pParticles[2] = RGetParticleSystem()->AddParticles("sfx/water_splash.bmp", 5.0f);
-	}
-	void Destroy()
-	{
-		if (!IsSnowTownMap()) return;
-
-		m_pParticles[0]->Clear();
-		m_pParticles[1]->Clear();
-		m_pParticles[2]->Clear();
-	}
-};
-
-static ZSnowTownParticleSystem g_SnowTownParticleSystem;
-
 ZGame*	g_pGame = NULL;
 // Is in radians
 static float	g_fFOV = DEFAULT_FOV;
@@ -310,20 +235,6 @@ void TestCreateEffect(int nEffIndex)
 	}
 }
 
-float CalcActualDamage(ZObject* pAttacker, ZObject* pVictim, float fDamage)
-{
-	if (g_pGame->GetMatch()->GetMatchType() == MMATCH_GAMETYPE_BERSERKER)
-	{
-		ZRuleBerserker* pRule = (ZRuleBerserker*)g_pGame->GetMatch()->GetRule();
-		if ((pAttacker) && (pAttacker != pVictim) && (pAttacker->GetUID() == pRule->GetBerserkerUID()))
-		{
-			return fDamage * BERSERKER_DAMAGE_RATIO;
-		}
-	}
-
-	return fDamage;
-}
-
 void TestCreateEffects()
 {
 	int nCount = 100;
@@ -388,8 +299,6 @@ ZGame::ZGame()
 
 ZGame::~ZGame()
 {
-	g_SnowTownParticleSystem.Destroy();
-	RSnowParticle::Release();
 }
 
 bool ZGame::Create(MZFileSystem *pfs, ZLoadingProgress *pLoading )
@@ -525,10 +434,6 @@ bool ZGame::Create(MZFileSystem *pfs, ZLoadingProgress *pLoading )
 
 	ZGetGameInterface()->GetCamera()->SetLookMode(ZCAMERA_DEFAULT);
 
-
-	g_SnowTownParticleSystem.Create();
-
-
 	return true;
 }
 
@@ -542,8 +447,6 @@ void ZGame::Destroy()
 	DestroyAllBots();
 
 	StopRecording();
-
-	g_SnowTownParticleSystem.Destroy();
 
 	SetClearColor(0);
 
@@ -691,8 +594,6 @@ void ZGame::Update(float fElapsed)
 	}
 
 	UpdateCombo();
-
-	g_SnowTownParticleSystem.Update(fElapsed);
 
 #ifdef _WORLD_ITEM_
 	ZGetWorldItemManager()->update();
@@ -2441,7 +2342,7 @@ void ZGame::OnPeerShot_Melee(const MUID& uidOwner, float fShotTime)
 		ZGetEffectManager()->AddBloodEffect(tpos, -fTarDir);
 		ZGetEffectManager()->AddSlashEffect(tpos, -fTarDir, cm);
 
-		float fActualDamage = CalcActualDamage(pOwner, pTar, (float)pDesc->m_nDamage);
+		float fActualDamage = (float)pDesc->m_nDamage;
 		float fRatio = pItem->GetPiercingRatio(pDesc->m_nWeaponType, eq_parts_chest);
 		pTar->OnDamaged(pOwner, pOwner->GetPosition(), ZD_MELEE, pDesc->m_nWeaponType,
 			fActualDamage, fRatio, cm);
@@ -2806,7 +2707,7 @@ ShotInfo ZGame::DoOneShot(ZObject* pOwner, v3 SrcPos, v3 DestPos, float ShotTime
 
 		pickinfo.pObject->OnKnockback(pOwner->m_Direction, fKnockbackForce);
 
-		float fActualDamage = CalcActualDamage(pOwner, pickinfo.pObject, (float)pDesc->m_nDamage);
+		float fActualDamage = (float)pDesc->m_nDamage;
 		float fRatio = pItem->GetPiercingRatio(pDesc->m_nWeaponType, pickinfo.info.parts);
 		auto dt = (pickinfo.info.parts == eq_parts_head) ? ZD_BULLET_HEADSHOT : ZD_BULLET;
 
