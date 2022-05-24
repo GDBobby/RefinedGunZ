@@ -25,8 +25,6 @@ private:
 	void UpdateEvents(double DeltaTime);
 	u64 GetTimeInTicks();
 
-	bool testingShit = false;
-
 	std::vector<ZTimerEvent> m_EventList;
 
 	bool UsingQPF{};

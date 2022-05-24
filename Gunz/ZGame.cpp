@@ -1004,13 +1004,12 @@ static void ZLogCommand(MCommand* pCmd)
 
 bool ZGame::OnCommand_Immediate(MCommand* pCommand)
 {
+
+	//unnecessary scope?
+	auto&& Bot = GetBotInfo().MyBot;
+	if (Bot && Bot->GetState() == BotStateType::Recording && pCommand->GetSenderUID() == m_pMyCharacter->GetUID())
 	{
-		auto&& Bot = GetBotInfo().MyBot;
-		if (Bot && Bot->GetState() == BotStateType::Recording &&
-			pCommand->GetSenderUID() == m_pMyCharacter->GetUID())
-		{
-			Bot->RecordCommand(pCommand);
-		}
+		Bot->RecordCommand(pCommand);
 	}
 
 	if(GameAction.OnCommand(pCommand))
@@ -2386,13 +2385,20 @@ void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &d
 {
 	//g_Attacks[pOwner].TotalSlashes++;
 
-	GetRGMain().OnSlash(pOwner, pos, dir);
+	//test commenting out this
+	//GetRGMain().OnSlash(pOwner, pos, dir);
 
 	ZItem *pItem = pOwner->GetItems()->GetItem(MMCIP_MELEE);
-	if (!pItem) return;
+	if (!pItem) {
+		MessageBox(NULL, "Big error", "wyd bro?", NULL);
+		return;
+	}
 
 	MMatchItemDesc *pDesc = pItem->GetDesc();
-	if (!pDesc) return;
+	if (!pDesc) {
+		MessageBox(NULL, "Big error", "wyd bro?", NULL);
+		return;
+	}
 
 	ZGetSoundEngine()->PlaySound("blade_swing", pOwner->GetPosition(), pOwner == m_pMyCharacter, false, 0);
 

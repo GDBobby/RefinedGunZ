@@ -249,8 +249,15 @@ namespace RealSpace2
 #ifdef TIMESCALE
 unsigned long long GetGlobalTimeMSOverride()
 {
-	if (!ZApplication::GetInstance())
-		return timeGetTime();
+	if (!ZApplication::GetInstance()) {
+		auto now = std::chrono::system_clock::now();
+		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+		auto value = now_ms.time_since_epoch();
+		unsigned long long duration = value.count();
+
+		return duration;
+	}
 
 	return ZApplication::GetInstance()->GetTime();
 }
@@ -275,24 +282,13 @@ bool ZApplication::OnCreate(ZLoadingProgress *pLoadingProgress)
 
 	//ListSoundDevices();
 
-	[&]
-	{
-		if (!IsDynamicResourceLoad())
-			return;
-
-		auto Fail = [&]()
-		{
+	if (IsDynamicResourceLoad()) {
+		auto ret = ReadMZFile("system/parts_index.xml");
+		if (!ret.first || !GetMeshManager()->LoadParts(ret.second)) {
 			MLog("Failed to load parts index! Turning off dynamic resource loading\n");
 			RealSpace2::DynamicResourceLoading = false;
-		};
-
-		auto ret = ReadMZFile("system/parts_index.xml");
-		if (!ret.first)
-			return Fail();
-
-		if (!GetMeshManager()->LoadParts(ret.second))
-			return Fail();
-	}();
+		}
+	}
 
 	__BP(2000, "ZApplication::OnCreate");
 
@@ -588,37 +584,37 @@ void ZApplication::OnUpdate()
 {
 	auto prof = MBeginProfile("ZApplication::OnUpdate");
 
+	appCounter++;;
+
+	static std::chrono::steady_clock::time_point LastMyTime = std::chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point CurMyTime = std::chrono::steady_clock::now();
+
+	frametimeMinimum += std::chrono::duration<double>(CurMyTime - LastMyTime);
+	while (frametimeMinimum > std::chrono::duration <double>(.004)) {
+
+		frametimeMinimum -= std::chrono::duration <double>(.004);
+		frameCounter++;
+	}
+	LastMyTime = CurMyTime;
+
 	static u64 LastRealTime = timeGetTime();
 	auto CurRealTime = timeGetTime();
-	if (Timescale == 1.f)
-	{
-		Time += CurRealTime - LastRealTime;
-	}
-	else
-	{
-		auto Delta = double(CurRealTime - LastRealTime);
-		Time += Delta * Timescale;
-	}
+
+	Time += CurRealTime - LastRealTime;
 	LastRealTime = CurRealTime;
 
 	auto ElapsedTime = m_Timer.UpdateFrame();
+	TotalElapsedTime = ElapsedTime;
 
-	if (Timescale != 1.f)
-		ElapsedTime *= Timescale;
-
-	if (GetRS2().UsingVulkan())
-	{
-		UpdateVulkan(ElapsedTime);
-		return;
-	}
+	//removed Vulkan conditional, not implemented ~ BOBBYCODE
 
 	GetRGMain().OnUpdate(ElapsedTime);
 
-	__BP(1,"ZApplication::OnUpdate::m_pInterface->Update");
+	__BP(1, "ZApplication::OnUpdate::m_pInterface->Update");
 	if (m_pGameInterface) m_pGameInterface->Update(ElapsedTime);
 	__EP(1);
 
-	__BP(2,"ZApplication::OnUpdate::SoundEngineRun");
+	__BP(2, "ZApplication::OnUpdate::SoundEngineRun");
 
 #ifdef _BIRDSOUND
 	m_SoundEngine.Update();
@@ -632,8 +628,8 @@ void ZApplication::OnUpdate()
 		if (m_pGameInterface)
 		{
 			m_pGameInterface->OnScreenshot();
-		}
 	}
+}
 }
 
 bool g_bProfile=false;

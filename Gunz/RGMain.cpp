@@ -216,6 +216,8 @@ RGMain::~RGMain() {
 
 void RGMain::OnUpdate(double Elapsed)
 {
+
+	/* wtf is a invokation
 	LastTime = Time;
 
 	Time += Elapsed;
@@ -240,8 +242,10 @@ void RGMain::OnUpdate(double Elapsed)
 	}
 
 	TaskManager::GetInstance().Update(Elapsed);
+	*/
 
 	GetChat().OnUpdate(Elapsed);
+	
 }
 
 bool RGMain::OnEvent(MEvent *pEvent)

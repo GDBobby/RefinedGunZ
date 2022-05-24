@@ -297,6 +297,8 @@ struct FPSLimiter
 	{
 		auto TPS = QPF();
 		auto CurTime = QPC();
+		//try fixing OC later
+		//auto MyCurTime = std::chrono::steady_clock::now();
 
 		if (CurTime - LastSecondTime > TPS) {
 			LastSecondTime = QPC();
@@ -384,12 +386,17 @@ RRESULT OnRender(void *pParam)
 
 		if (ZGetConfiguration()->GetVisualFPSLimit() != 0)
 		{
-			PrintText("Visual FPS: %d", VisualFPSLimiter.LastFPS);
-			PrintText("Logical FPS: %d", LogicalFPSLimiter.LastFPS);
+			PrintText("FPS: %d", VisualFPSLimiter.LastFPS);
+			PrintText("TPS: %d", LogicalFPSLimiter.LastFPS);
+
+			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
+			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
 		}
 		else
 		{
 			PrintText("FPS: %d", LogicalFPSLimiter.LastFPS);
+			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
+			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
 		}
 
 		if (ZGetConfiguration()->GetShowDebugInfo() &&

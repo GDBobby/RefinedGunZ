@@ -73,20 +73,12 @@ u64 ZTimer::GetTimeInTicks()
 double ZTimer::UpdateFrame()
 {
 
-	//BOBBYCODE
-	auto TimeInTicks = std::chrono::steady_clock::now();
-	//double ElapsedSecond = double(ElapsedTicks) / TicksPerSecond;
-	double ElapsedSeconds = std::chrono::duration<double>(TimeInTicks - LastTimeInTicks).count();
+	//BOBBYCODE, FIXED TIME STEP
+	double ElapsedSeconds = .004;
 
-	if (!testingShit) {
-		testingShit = true;
-	}
+	UpdateEvents(.004);
 
-	LastTimeInTicks = TimeInTicks;
-
-	UpdateEvents(ElapsedSeconds);
-
-	return ElapsedSeconds;
+	return .004;
 }
 
 void ZTimer::UpdateEvents(double DeltaTime)

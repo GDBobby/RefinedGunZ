@@ -2713,15 +2713,12 @@ bool ZGameInterface::Update(float fElapsed)
 {
 	if (m_pBackground && ((GetState() == GUNZ_CHARSELECTION) || (GetState() == GUNZ_CHARCREATION)))
 		m_pBackground->OnUpdate(fElapsed);
-
-	if (GetState() == GUNZ_LOBBY)
-	{
-		if (ZGetApplication()->GetLaunchMode() == ZApplication::ZLAUNCH_MODE_STANDALONE_REPLAY)
-		{
-			ShowWidget("Lobby", false);
-			ShowWidget("ReplayConfirm", true);
-			return false;
-		}
+	
+	//combined conditionals BOBBYCODE
+	if (GetState() == GUNZ_LOBBY && ZGetApplication()->GetLaunchMode() == ZApplication::ZLAUNCH_MODE_STANDALONE_REPLAY) {
+		ShowWidget("Lobby", false);
+		ShowWidget("ReplayConfirm", true);
+		return false;
 	}
 
 	__BP(13, "ZGameInterface::Update");

@@ -52,6 +52,13 @@ public:
 		ZLAUNCH_MODE_STANDALONE_QUEST,
 	};
 
+	//BOBBYCODE
+	u64 frameCounter = 0;
+	u64 appCounter = 0;
+	std::chrono::duration<double> frametimeMinimum;
+	double TotalElapsedTime = 0;
+	u64 ElapsedCounter = 0;
+
 private:
 	ZGameInterface*			m_pGameInterface;
 	GunzState				m_nInitialState;
@@ -66,6 +73,9 @@ private:
 	bool					m_bLaunchTest;
 	u64 Time{};
 	float Timescale = 1.f;
+
+	
+
 	std::string AssetsDir = "./";
 
 	void ParseStandAloneArguments(const char* pszArgs);
