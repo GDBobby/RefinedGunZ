@@ -1197,14 +1197,14 @@ float ZCharacter::GetMoveSpeedRatio()
 
 void ZCharacter::UpdateVelocity(float fDelta)
 {
+	//some BOBBYCODE in here, removing fratio again, then simplifying 1step further after that
+
 	rvector dir=rvector(GetVelocity().x,GetVelocity().y,0);
 	float fSpeed=Magnitude(dir);
 	if (fSpeed > 0)
 		Normalize(dir);
 
-	float fRatio = GetMoveSpeedRatio();
-
-	float max_speed = MAX_SPEED * fRatio;
+	float max_speed = MAX_SPEED;
 
 	if(fSpeed>max_speed)
 		fSpeed=max_speed;
@@ -1218,20 +1218,15 @@ void ZCharacter::UpdateVelocity(float fDelta)
 		forward.z=0;
 		Normalize(forward);
 
-		// 최대값을 비율로 제어한다.
-		float run_speed = RUN_SPEED * fRatio;
-		float back_speed = BACK_SPEED * fRatio;
-		float stop_formax_speed = STOP_FORMAX_SPEED * (1/fRatio);  
-
 		if(DotProduct(forward,dir)>cosf(10.f*PI_FLOAT /180.f))
 		{
-			if(fSpeed>run_speed)
-				fSpeed=max(fSpeed-stop_formax_speed*fDelta,run_speed);
+			if(fSpeed>RUN_SPEED)
+				fSpeed=max(fSpeed- STOP_FORMAX_SPEED * fDelta, RUN_SPEED);
 		}
 		else
 		{
-			if(fSpeed>back_speed)
-				fSpeed=max(fSpeed-stop_formax_speed*fDelta,back_speed);
+			if(fSpeed > BACK_SPEED)
+				fSpeed=max(fSpeed - STOP_FORMAX_SPEED  * fDelta, BACK_SPEED);
 		}
 	}
 

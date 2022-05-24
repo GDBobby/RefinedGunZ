@@ -140,36 +140,29 @@ void ZMyCharacter::ProcessInput(float fDelta)
 
 	if (!IsDead() && !m_bStun && !m_bBlastDrop && !m_bBlastStand)
 	{
-		bool ButtonPressed = false;
-
+		//walking
 		if (!m_bWallJump && !m_bTumble && !m_bSkill && !m_bMoveLimit &&
 			!m_bBlast && !m_bBlastFall && !m_bBlastAirmove && !m_bCharging &&
 			!m_bSlash && !m_bJumpSlash && !m_bJumpSlashLanding)
 		{
-			auto AddAccel = [&](auto& vec)
-			{
-				m_Accel += vec;
-				ButtonPressed = true;
-			};
-			if (ZIsActionKeyDown(ZACTION_FORWARD) == true)
-				AddAccel(forward);
-			if (ZIsActionKeyDown(ZACTION_BACK) == true)
-				AddAccel(-forward);
-			if (ZIsActionKeyDown(ZACTION_RIGHT) == true)
-				AddAccel(right);
-			if (ZIsActionKeyDown(ZACTION_LEFT) == true)
-				AddAccel(-right);
-		}
+			//BOBBYCODE
+			m_Accel += forward * ZIsActionKeyDown(ZACTION_FORWARD);
+			m_Accel -= forward * ZIsActionKeyDown(ZACTION_BACK);
+			m_Accel += right * ZIsActionKeyDown(ZACTION_RIGHT);
+			m_Accel -= right * ZIsActionKeyDown(ZACTION_LEFT);
 
-		if (ButtonPressed)
+
 			Normalize(m_Accel);
+		}
+			
 
 		m_bBackMoving = ZIsActionKeyDown(ZACTION_BACK);
 
-		float fRatio = GetMoveSpeedRatio();
+		//float fRatio = GetMoveSpeedRatio(); ~~ removing fratio? what is this shit for? berserk?
 
 		if (!m_bLand) {
-			if (Magnitude(rvector(GetVelocity().x, GetVelocity().y, 0)) < RUN_SPEED * fRatio)
+			//removed fratio ~ BOBBYCODE
+			if (Magnitude(rvector(GetVelocity().x, GetVelocity().y, 0)) < RUN_SPEED)
 				m_Accel *= AIR_MOVE;
 			else
 				m_Accel *= 0;
@@ -194,26 +187,32 @@ void ZMyCharacter::ProcessInput(float fDelta)
 		if (m_bJumpQueued && (g_pGame->GetTime() - m_fLastJumpPressedTime > JUMP_QUEUE_TIME))
 			m_bJumpQueued = false;
 
+
+		//speed change on jump?
 		if (m_bJumpQueued && !m_bTumble && !m_bDrop && !m_bShot && !m_bShotReturn && !m_bSkill &&
 			!m_bBlast && !m_bBlastFall && !m_bBlastDrop && !m_bBlastStand && !m_bBlastAirmove &&
 			!m_bSlash && !m_bJumpSlash && !m_bJumpSlashLanding)
 		{
+			
 			if (!m_bWallJump && !m_bGuard && !m_bLimitWall)
 			{
+				//wall jump
 				if (m_bWallJumpQueued && DotProduct(GetVelocity(), m_Direction) > 0 &&
 					GetVelocity().z > -10.f)
 				{
-					rvector pickorigin, dir;
+					rvector pickorigin;
 					rvector front = m_Direction;
 					Normalize(front);
 
-					dir = front;
+					rvector dir = front;
 					dir.z = 0;
 					Normalize(dir);
 
-					float fRatio = GetMoveSpeedRatio();
+					//removing fratio
+					//float fRatio = GetMoveSpeedRatio();
 
-					if (m_bLand && DotProduct(GetVelocity(), dir) > RUN_SPEED * fRatio * .8f)
+					//RUNSPEED * 0.8 = 504.0f, compiler takes care of this?
+					if (m_bLand && DotProduct(GetVelocity(), dir) > RUN_SPEED * 0.8f)
 					{
 						pickorigin = m_Position;
 
@@ -227,9 +226,9 @@ void ZMyCharacter::ProcessInput(float fDelta)
 							float fDist1 = Magnitude(pickorigin + rvector(0, 0, 100) - bpi1.PickPos);
 							float fDist2 = Magnitude(pickorigin + rvector(0, 0, 180) - bpi2.PickPos);
 
-							if (fDist1 < 120 &&
+							if (fDist1 < 120.0f &&
 								DotPlaneNormal(bpi1.pInfo->plane, backdir) > cos(10.f / 180.f * PI_FLOAT) &&
-								fDist2 < 120 &&
+								fDist2 < 120.0f &&
 								DotPlaneNormal(bpi2.pInfo->plane, backdir) > cos(10.f / 180.f * PI_FLOAT))
 							{
 								bWallJump = true;
@@ -238,11 +237,12 @@ void ZMyCharacter::ProcessInput(float fDelta)
 						}
 					}
 
-					auto right = Normalized(CrossProduct({ 0, 0, 1 }, front));
+					//why auto? rvector BOBBYCODE
+					rvector right = Normalized(CrossProduct({ 0, 0, 1 }, front));
 
 					pickorigin = m_Position + rvector(0, 0, 150);
 
-					for (int i = 0; i < 2; i++)
+					for (int i = 0; i < 2; i++) //just do it twice? whatever im not fucking with wall jump code
 					{
 						dir = (i == 0) ? -right : right;
 
@@ -283,7 +283,7 @@ void ZMyCharacter::ProcessInput(float fDelta)
 
 										SetTargetDir(jumpdir);
 										float speed = Magnitude(GetVelocity());
-										SetVelocity(jumpdir*speed);
+										SetVelocity(jumpdir * speed);
 									}
 								}
 							}
@@ -412,14 +412,18 @@ void ZMyCharacter::ProcessInput(float fDelta)
 			}
 			else
 #ifndef UNLIMITED_JUMP
+				//this is the regular jump formula
 				if (m_bLand)
 #endif
 				{
 					m_bJumpQueued = false;
 
+					//test commenting this out?? BOBBYCODE
+					/*
 					rvector right;
 					rvector forward = m_Direction;
 					CrossProduct(&right, rvector(0, 0, 1), forward);
+					*/
 
 					rvector vel = rvector(GetVelocity().x, GetVelocity().y, 0);
 					float fVel = Magnitude(vel);
@@ -438,6 +442,8 @@ void ZMyCharacter::ProcessInput(float fDelta)
 
 	ProcessGuard();
 	ProcessShot();
+
+	//LMAO FLIP IS CALLED GADGET
 	ProcessGadget();
 }
 
@@ -1051,6 +1057,7 @@ void ZMyCharacter::ProcessGuard()
 	bool bBothPressed = m_bLButtonPressed && m_bRButtonPressed &&
 		(m_bLButtonFirstPressed || m_bRButtonFirstPressed);
 
+	//finna fuck this up right here and change it to frames
 	float fTime = g_pGame->GetTime();
 	bool bGuardTime = ((fTime - m_f1ShotTime) <= GUARD_TIME && m_bRButtonFirstPressed) ||
 		((fTime - m_fSkillTime) <= GUARD_TIME && m_bLButtonFirstPressed) ||
@@ -1163,6 +1170,7 @@ void ZMyCharacter::ProcessShot()
 	if (GetItems()->GetSelectedWeapon() == NULL ||
 		GetItems()->GetSelectedWeapon()->IsEmpty()) return;
 
+	//slash, aerial?
 	if (GetItems()->GetSelectedWeapon()->GetDesc()->m_nType == MMIT_MELEE)
 	{
 		bool bJumpAttack = false;
@@ -1187,7 +1195,8 @@ void ZMyCharacter::ProcessShot()
 	}
 	else
 	{
-		if (ZApplication::GetGame()->GetMatch()->IsRuleGladiator() && !IsAdmin()) return;
+		//fuckin admins BOBBYCODE
+		if (ZApplication::GetGame()->GetMatch()->IsRuleGladiator()) return;
 		if (!m_bLButtonPressed) return;
 	}
 
@@ -1211,9 +1220,8 @@ void ZMyCharacter::ProcessShot()
 
 	if (nParts<0 || nParts > MMCIP_END - 1) return;
 
-	if (GetItems()->GetSelectedWeapon()->GetDesc()->m_nType != MMIT_MELEE)
-		if (m_fNextShotTimeType[nParts] > g_pGame->GetTime())
-			return;
+	//nested ifs? BOBBYCODE
+	if (GetItems()->GetSelectedWeapon()->GetDesc()->m_nType != MMIT_MELEE && m_fNextShotTimeType[nParts] > g_pGame->GetTime()) return;
 
 	ZItem* pSelectedItem = GetItems()->GetSelectedWeapon();
 
@@ -1591,6 +1599,7 @@ void ZMyCharacter::OnUpdate(float fDelta)
 		}
 	}
 
+	//is updatelimit some quester shit? finna comment this out
 	UpdateLimit();
 
 	if ((m_bWallHang && m_bHangSuccess) || m_bShot)
@@ -1606,11 +1615,14 @@ void ZMyCharacter::OnUpdate(float fDelta)
 
 	m_bMoving = Magnitude(rvector(GetVelocity().x, GetVelocity().y, 0)) > .1f;
 
-	const int MAX_MOVE_FRAME = 150;
+	/*const int MAX_MOVE_FRAME = 150;
+	
 	static float fAccmulatedDelta = 0.f;
-
+	//i dont really get the point of declaring it here, i'm going to move this time gate to a higher scope later
 	fAccmulatedDelta += fDelta;
 
+
+	//lol thats interesting, lets see what happens if we remove this
 	if (fAccmulatedDelta > (1.f / (float)MAX_MOVE_FRAME))
 	{
 		m_pModule_Movable->OnUpdate(fAccmulatedDelta);
@@ -1625,6 +1637,18 @@ void ZMyCharacter::OnUpdate(float fDelta)
 		}
 
 		fAccmulatedDelta = 0;
+	}
+	*/
+
+	m_pModule_Movable->OnUpdate(fDelta);
+
+	if (Magnitude(m_pModule_Movable->GetLastMove()) < 0.01f)
+		SetVelocity(0, 0, 0);
+
+	if (GetDistToFloor() > 0.1f || GetVelocity().z > 0.1f)
+	{
+		m_pModule_Movable->UpdateGravity(GetGravityConst() * fDelta);
+		m_bLand = false;
 	}
 
 	UpdateHeight(fDelta);
@@ -2088,9 +2112,7 @@ void ZMyCharacter::OnDashAttacked(rvector &dir)
 	AddVelocity(rvector(dir.x*2000.f, dir.y*2000.f, dir.z*2000.f));
 	Normalize(dir);
 
-	float fRatio = GetMoveSpeedRatio();
-
-	AddVelocity(dir * RUN_SPEED * fRatio);
+	AddVelocity(dir * RUN_SPEED);
 
 	SetLastThrower(m_uidReserveDashAttacker, g_pGame->GetTime() + 1.0f);
 
