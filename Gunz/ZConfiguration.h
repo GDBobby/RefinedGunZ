@@ -197,7 +197,6 @@ public:
 	ZCONFIG_CHAT* GetChat()			{ return &m_Chat; }
 
 	int GetVisualFPSLimit() const { return VisualFPSLimit; }
-	int GetLogicalFPSLimit() const { return LogicalFPSLimit; }
 	bool GetCamFix() const { return bCamFix; }
 	bool GetInterfaceFix() const { return InterfaceFix; }
 	bool GetShowHitboxes() const { return bShowHitboxes; }
@@ -208,6 +207,7 @@ public:
 	bool GetUnlockedDir() const { return UnlockedDir; }
 	bool GetShowDebugInfo() const { return ShowDebugInfo; }
 	float GetFOV() const { return FOV; }
+	float GetCamDist() const { return CamDist; }
 	bool GetColorInvert() const { return ColorInvert; }
 	bool GetMonochrome() const { return Monochrome; }
 
@@ -252,9 +252,9 @@ private:
 	std::map<int, ZSERVERNODE> m_ServerList;
 
 	int VisualFPSLimit = 0;
-	int LogicalFPSLimit = 250;
 
 	bool bCamFix{};
+	bool bCamDist{};
 	bool InterfaceFix{};
 	bool bShowHitboxes{};
 	bool bDynamicResourceLoad{};
@@ -264,6 +264,7 @@ private:
 	bool UnlockedDir{};
 	bool ShowDebugInfo{};
 	float FOV = ToDegree(DEFAULT_FOV);
+	float CamDist = CAMERA_DEFAULT_DISTANCE;
 	bool ColorInvert{};
 	bool Monochrome{};
 };
@@ -319,7 +320,6 @@ ZConfiguration*	ZGetConfiguration();
 #define ZTOK_VIDEO_TEXTUREFORMAT "TEXTUREFORMAT"
 #define ZTOK_VIDEO_HARDWARETNL	"NHARDWARETNL"
 #define ZTOK_VIDEO_VISUALFPSLIMIT "VISUALFPSLIMIT"
-#define ZTOK_VIDEO_LOGICALFPSLIMIT "LOGICALFPSLIMIT"
 #define ZTOK_VIDEO_CAMFIX		"CAMFIX"
 #define ZTOK_VIDEO_INTERFACEFIX	"INTERFACEFIX"
 
@@ -371,6 +371,7 @@ ZConfiguration*	ZGetConfiguration();
 #define ZTOK_ETC_UNLOCKEDDIR		"UNLOCKEDDIR"
 #define ZTOK_ETC_SHOWDEBUGINFO		"SHOWDEBUGINFO"
 #define ZTOK_ETC_FOV				"FOV"
+#define ZTOK_ETC_CAM_DIST			"CAMDIST"
 #define ZTOK_ETC_COLORINVERT		"COLORINVERT"
 #define ZTOK_ETC_MONOCHROME			"MONOCHROME"
 #define ZTOK_ETC_ASYNCSCREENSHOTS	"ASYNCSCREENSHOTS"

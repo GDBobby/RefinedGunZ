@@ -601,10 +601,11 @@ void ZApplication::OnUpdate()
 	auto CurRealTime = timeGetTime();
 
 	Time += CurRealTime - LastRealTime;
+	TotalElapsedTime = CurRealTime - LastRealTime;
 	LastRealTime = CurRealTime;
 
 	auto ElapsedTime = m_Timer.UpdateFrame();
-	TotalElapsedTime = ElapsedTime;
+	
 
 	//removed Vulkan conditional, not implemented ~ BOBBYCODE
 

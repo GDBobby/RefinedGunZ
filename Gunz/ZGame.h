@@ -373,6 +373,7 @@ extern MUID g_MyChrUID;
 extern float g_fFarZ;
 float GetFOV();
 void SetFOV(float);
+void SetCamDist(float);
 
 ZCharacterManager*	ZGetCharacterManager();
 ZObjectManager*		ZGetObjectManager();

@@ -93,6 +93,7 @@ _USING_NAMESPACE_REALSPACE2
 ZGame*	g_pGame = NULL;
 // Is in radians
 static float	g_fFOV = DEFAULT_FOV;
+static float g_fCamDist = CAMERA_DEFAULT_DISTANCE;
 float	g_fFarZ = DEFAULT_FAR_Z;
 
 float GetFOV()
@@ -103,6 +104,10 @@ float GetFOV()
 void SetFOV(float x)
 {
 	g_fFOV = ZGetConfiguration()->GetCamFix() ? FixedFOV(x) : x;
+}
+
+void SetCamDist(float x) {
+	g_fCamDist = x;
 }
 
 MUID tempUID(0, 0);

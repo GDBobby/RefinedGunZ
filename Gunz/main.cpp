@@ -333,17 +333,6 @@ auto VisualFPSLimiter = MakeFPSLimiter<&ZConfiguration::GetVisualFPSLimit>(
 	[&](auto nSleep) {
 	return nSleep <= 0;
 });
-auto LogicalFPSLimiter = MakeFPSLimiter<&ZConfiguration::GetLogicalFPSLimit>(
-	[&](auto nSleep) {
-	if (nSleep <= 0)
-		return true;
-
-	if (nSleep > 250)
-		MLog("Large sleep %d!\n", nSleep);
-	else
-		Sleep(nSleep);
-	return true;
-});
 
 RRESULT OnUpdate(void* pParam)
 {
@@ -351,8 +340,6 @@ RRESULT OnUpdate(void* pParam)
 
 	g_pInput->Update();
 	g_App.OnUpdate();
-
-	LogicalFPSLimiter.Tick();
 
 	return R_OK;
 }
@@ -387,14 +374,12 @@ RRESULT OnRender(void *pParam)
 		if (ZGetConfiguration()->GetVisualFPSLimit() != 0)
 		{
 			PrintText("FPS: %d", VisualFPSLimiter.LastFPS);
-			PrintText("TPS: %d", LogicalFPSLimiter.LastFPS);
 
 			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
 			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
 		}
 		else
 		{
-			PrintText("FPS: %d", LogicalFPSLimiter.LastFPS);
 			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
 			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
 		}

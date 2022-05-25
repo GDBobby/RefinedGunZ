@@ -133,7 +133,10 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 
 		ZGetConfiguration()->Save();
 	};
+	CmdManager.AddCommand(0, "visualfpslimit", VisualFPSLimit,
+		CCF_ALL, 1, 1, true, "/visualfpslimit <fps>", "");
 
+	/*
 	auto LogicalFPSLimit = [](const char *line, int argc, char ** const argv) {
 		int nFPSLimit = atoi(argv[1]);
 		ZGetConfiguration()->LogicalFPSLimit = nFPSLimit;
@@ -142,13 +145,11 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 		ZGetConfiguration()->Save();
 	};
 
-	CmdManager.AddCommand(0, "visualfpslimit", VisualFPSLimit,
-		CCF_ALL, 1, 1, true, "/visualfpslimit <fps>", "");
 	CmdManager.AddCommand(0, "logicalfpslimit", LogicalFPSLimit,
 		CCF_ALL, 1, 1, true, "/logicalfpslimit <fps>", "");
 
 	CmdManager.AddAlias("fpslimit", "logicalfpslimit");
-
+	*/
 
 	CmdManager.AddCommand(0, "camfix", [](const char *line, int argc, char ** const argv) {
 		if (SetBool("Cam fix", ZGetConfiguration()->bCamFix, argc, argv)) {
@@ -156,6 +157,14 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 			SetFOV(ToRadian(ZGetConfiguration()->GetFOV()));
 		}
 	},
+		CCF_ALL, 0, 1, true, "/camfix [0/1]", "");
+
+	CmdManager.AddCommand(0, "camdist", [](const char* line, int argc, char** const argv) {
+		if (SetBool("Cam fix", ZGetConfiguration()->bCamFix, argc, argv)) {
+			ZGetConfiguration()->Save();
+			SetCamDist(ZGetConfiguration()->GetCamDist());
+		}
+		},
 		CCF_ALL, 0, 1, true, "/camfix [0/1]", "");
 
 

@@ -376,7 +376,6 @@ bool ZConfiguration::LoadConfig(const char* szFileName)
 			childElement.GetChildContents(&m_Video.nTextureFormat, ZTOK_VIDEO_TEXTUREFORMAT );
 			childElement.GetChildContents(&m_Video.bTerrible, ZTOK_VIDEO_HARDWARETNL);
 			childElement.GetChildContents(&VisualFPSLimit, ZTOK_VIDEO_VISUALFPSLIMIT);
-			childElement.GetChildContents(&LogicalFPSLimit, ZTOK_VIDEO_LOGICALFPSLIMIT);
 			childElement.GetChildContents(&bCamFix, ZTOK_VIDEO_CAMFIX);
 			childElement.GetChildContents(&InterfaceFix, ZTOK_VIDEO_INTERFACEFIX);
 		}
@@ -455,6 +454,7 @@ bool ZConfiguration::LoadConfig(const char* szFileName)
 #ifdef ENABLE_FOV_OPTION
 			childElement.GetChildContents(&FOV, ZTOK_ETC_FOV);
 #endif
+			childElement.GetChildContents(&CamDist, ZTOK_ETC_CAM_DIST);
 			childElement.GetChildContents(&ColorInvert, ZTOK_ETC_COLORINVERT);
 			childElement.GetChildContents(&Monochrome, ZTOK_ETC_MONOCHROME);
 			childElement.GetChildContents(&AsyncScreenshots, ZTOK_ETC_ASYNCSCREENSHOTS);
@@ -601,7 +601,6 @@ bool ZConfiguration::SaveToFile(const char *szFileName, const char* szHeader)
 		Section.Add(ZTOK_VIDEO_TEXTUREFORMAT, m_Video.nTextureFormat);
 		Section.Add(ZTOK_VIDEO_HARDWARETNL, m_Video.bTerrible);
 		Section.Add(ZTOK_VIDEO_VISUALFPSLIMIT, VisualFPSLimit);
-		Section.Add(ZTOK_VIDEO_LOGICALFPSLIMIT, LogicalFPSLimit);
 		Section.Add(ZTOK_VIDEO_CAMFIX, bCamFix);
 		Section.Add(ZTOK_VIDEO_INTERFACEFIX, InterfaceFix);
 	}
@@ -703,6 +702,7 @@ bool ZConfiguration::SaveToFile(const char *szFileName, const char* szHeader)
 #ifdef ENABLE_FOV_OPTION
 		Section.Add(ZTOK_ETC_FOV, FOV);
 #endif
+		Section.Add(ZTOK_ETC_CAM_DIST, CamDist);
 		Section.Add(ZTOK_ETC_COLORINVERT, ColorInvert);
 		Section.Add(ZTOK_ETC_MONOCHROME, Monochrome);
 		Section.Add(ZTOK_ETC_ASYNCSCREENSHOTS, AsyncScreenshots);
@@ -750,6 +750,7 @@ void ZConfiguration::Init()
 	m_Video.nTextureFormat = 1;
 	m_Video.bTerrible = false;
 	bCamFix = true;
+	bCamDist = true;
 	InterfaceFix = false;
 
 	m_Audio.bBGMEnabled = true;

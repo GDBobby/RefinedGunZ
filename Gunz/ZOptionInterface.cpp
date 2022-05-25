@@ -507,22 +507,22 @@ void ZOptionInterface::InitInterfaceOption(void)
 		}
 
 		char StringFOV[64];
-		sprintf_safe(StringFOV, "%.2f", Cfg.GetFOV());
+		sprintf_safe(StringFOV, "%.1f", Cfg.GetFOV());
+		char StringCamDist[64];
+		sprintf_safe(StringCamDist, "%f", Cfg.GetCamDist());
 		char StringFontSize[64];
 		sprintf_safe(StringFontSize, "%d", Cfg.GetChat()->FontSize);
 		char StringBackgroundColor[64];
 		sprintf_safe(StringBackgroundColor, "%08X", Cfg.GetChat()->BackgroundColor);
-		char StringLogicalFPSLimit[64];
-		sprintf_safe(StringLogicalFPSLimit, "%d", Cfg.GetLogicalFPSLimit());
 		char StringVisualFPSLimit[64];
 		sprintf_safe(StringVisualFPSLimit, "%d", Cfg.GetVisualFPSLimit());
 
 		std::pair<const char*, const char*> Edits[] = {
 			{"FOVOption",                 StringFOV},
+			{"CamDistOption",			  StringCamDist},
 			{"ChatFontOption",            Cfg.GetChat()->Font.c_str()},
 			{"ChatFontSizeOption",        StringFontSize},
 			{"ChatBackgroundColorOption", StringBackgroundColor},
-			{"LogicalFPSLimitOption",     StringLogicalFPSLimit},
 			{"VisualFPSLimitOption",      StringVisualFPSLimit},
 		};
 
@@ -549,6 +549,7 @@ void ZOptionInterface::InitInterfaceOption(void)
 		{
 			Widget->Enable(false);
 		}
+		//FOV WIDGET BOBBYCODE
 #endif
 	}
 
@@ -968,6 +969,8 @@ bool ZOptionInterface::SaveInterfaceOption(void)
 			{ "FOVOption",      [](const char* Value) {
 				ZGetConfiguration()->FOV = atof(Value); } },
 #endif
+			{"CamDistOption",	[](const char* Value) {
+					ZGetConfiguration()->CamDist = atof(Value); }},
 			{ "ChatFontOption", [](const char* Value) {
 				ZGetConfiguration()->GetChat()->Font = Value; } },
 			{ "ChatFontSizeOption", [](const char* Value) {
@@ -975,8 +978,6 @@ bool ZOptionInterface::SaveInterfaceOption(void)
 			{ "ChatBackgroundColorOption", [](const char* Value) {
 				ZGetConfiguration()->GetChat()->BackgroundColor =
 					StringToInt<u32, 16>(Value).value_or(0x80000000); } },
-			{ "LogicalFPSLimitOption", [](const char* Value) {
-				ZGetConfiguration()->LogicalFPSLimit = StringToInt<int>(Value).value_or(250); } },
 			{ "VisualFPSLimitOption", [](const char* Value) {
 				ZGetConfiguration()->VisualFPSLimit = StringToInt<int>(Value).value_or(0); } },
 		};
@@ -1017,6 +1018,10 @@ bool ZOptionInterface::SaveInterfaceOption(void)
 		GetRGMain().GetChat().SetBackgroundColor(Cfg.GetChat()->BackgroundColor);
 
 		SetFOV(ToRadian(Cfg.FOV));
+
+		//wtf is this ^
+		SetCamDist(Cfg.CamDist);
+
 	}
 
 	{
