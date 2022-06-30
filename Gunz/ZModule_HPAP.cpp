@@ -32,17 +32,7 @@ void ZModule_HPAP::OnDamage(MUID uidAttacker,int damage, float fRatio)
 			damage = (int)(damage * (pActor->GetQL() * 0.2f + 1));
 		}
 
-		int nHPDamage = (int)((float)damage * fRatio);
-		int nAPDamage = damage - nHPDamage;
-
-		if ((GetAP() - nAPDamage) < 0)
-		{
-			nHPDamage += (nAPDamage - GetAP());
-			nAPDamage -= (nAPDamage - GetAP());
-		}
-
-		SetHP(GetHP() - nHPDamage);
-		SetAP(GetAP() - nAPDamage);
+		SetHP(GetHP() - damage);
 	}
 }
 

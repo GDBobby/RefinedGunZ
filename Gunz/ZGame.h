@@ -109,6 +109,8 @@ public:
 	ZGame();
 	~ZGame();
 
+	//std::string invulnWall = "";
+
 	bool Create(MZFileSystem *pfs, ZLoadingProgress *pLoading);
 
 	void Draw();

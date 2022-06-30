@@ -391,6 +391,7 @@ RRESULT OnRender(void *pParam)
 
 			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
 			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
+			//PrintText("Check wall thingy : %s,", invulnWall);
 		}
 		else
 		{

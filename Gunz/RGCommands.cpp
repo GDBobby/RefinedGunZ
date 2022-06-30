@@ -154,6 +154,7 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 		if (SetBool("Cam fix", ZGetConfiguration()->bCamFix, argc, argv)) {
 			ZGetConfiguration()->Save();
 			SetFOV(ToRadian(ZGetConfiguration()->GetFOV()));
+			ZGetCamera()->RSetCameraDistance(ZGetConfiguration()->GetCamDist());
 		}
 	},
 		CCF_ALL, 0, 1, true, "/camfix [0/1]", "");
@@ -257,10 +258,12 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 			ZChatOutputF("%s", argv[i]);
 	}, CCF_ALL, ARGVNoMin, ARGVNoMax, true, "/argv", "");
 
+	/*
 	CmdManager.AddCommand(0, "swordcolor", [](const char *line, int argc, char ** const argv) {
 		uint32_t Color = strtoul(argv[1], NULL, 16);
 		ZPOSTCMD1(MC_PEER_SET_SWORD_COLOR, MCmdParamUInt(Color));
 	}, CCF_ALL, 1, 1, true, "/swordcolor <AARRGGBB>", "");
+	*/
 
 #ifdef VOICECHAT
 	CmdManager.AddCommand(0, "mute", [](const char *line, int argc, char ** const argv) {
@@ -337,6 +340,33 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 		ZChatOutputF("Field of view set to %d degrees", int(round(fov_degrees)));
 	},
 		CCF_ALL, 0, 1, true, "/fov [value, in degrees]", "");
+
+	CmdManager.AddCommand(0, "CamDistOption", [](const char* line, int argc, char** const argv) {
+#ifndef ENABLE_FOV_OPTION
+		if (!CheckDeveloperMode("CamDistOption"))
+			return;
+#endif
+
+		float cam_dist = DEFAULT_CAMERA_DISTANCE;
+		if (argc > 1)
+		{
+			auto arg = atof(argv[1]);
+			if ((arg > 290.f) && (arg < 600.f)) {
+				cam_dist = arg;
+			}
+			else {
+				cam_dist = 290.f;
+			}
+		}
+
+		ZGetConfiguration()->CamDistOption = cam_dist;
+		ZGetCamera()->RSetCameraDistance(cam_dist);
+
+		ZGetConfiguration()->Save();
+
+		ZChatOutputF("Camera Distance set to %d", int(round(cam_dist)));
+		},
+		CCF_ALL, 0, 1, true, "/CamDistOption [value, in degrees]", "");
 
 	CmdManager.AddCommand(0, "monochrome", [](const char *line, int argc, char ** const argv) {
 		static bool Enabled = false;
@@ -508,7 +538,7 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 #endif
 	},
 		CCF_ALL, 2, 2, true, "/scalenode", "");
-
+	/*
 	CmdManager.AddCommand(0, "camdist", [](const char *line, int argc, char ** const argv) {
 		if (!CheckDeveloperMode("camdist"))
 			return;
@@ -519,6 +549,7 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 		ZChatOutputF("Set camdist to %f", val);
 	},
 		CCF_ALL, 1, 1, true, "/camdist <dist>", "");
+		*/
 
 	CmdManager.AddCommand(0, "vsync", [](const char *line, int argc, char ** const argv) {
 		bool Value = false;

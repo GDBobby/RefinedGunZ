@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ZOptionInterface.h"
+#include "ZCamera.h"
 #include "MSlider.h"
 #include "ZConfiguration.h"
 #include "ZActionKey.h"
@@ -508,6 +509,8 @@ void ZOptionInterface::InitInterfaceOption(void)
 
 		char StringFOV[64];
 		sprintf_safe(StringFOV, "%.2f", Cfg.GetFOV());
+		char StringCamDist[64];
+		sprintf_safe(StringCamDist, "%.2f", Cfg.GetCamDist());
 		char StringFontSize[64];
 		sprintf_safe(StringFontSize, "%d", Cfg.GetChat()->FontSize);
 		char StringBackgroundColor[64];
@@ -519,6 +522,7 @@ void ZOptionInterface::InitInterfaceOption(void)
 
 		std::pair<const char*, const char*> Edits[] = {
 			{"FOVOption",                 StringFOV},
+			{"CamDistOption",				StringCamDist},
 			{"ChatFontOption",            Cfg.GetChat()->Font.c_str()},
 			{"ChatFontSizeOption",        StringFontSize},
 			{"ChatBackgroundColorOption", StringBackgroundColor},
@@ -546,6 +550,10 @@ void ZOptionInterface::InitInterfaceOption(void)
 
 #ifndef ENABLE_FOV_OPTION
 		if (auto&& Widget = ZFindWidget("FOVOption"))
+		{
+			Widget->Enable(false);
+		}
+		if (auto&& Widget = ZFindWidget("CamDistOption"))
 		{
 			Widget->Enable(false);
 		}
@@ -967,6 +975,8 @@ bool ZOptionInterface::SaveInterfaceOption(void)
 #ifdef ENABLE_FOV_OPTION
 			{ "FOVOption",      [](const char* Value) {
 				ZGetConfiguration()->FOV = atof(Value); } },
+			{ "CamDistOption",      [](const char* Value) {
+				ZGetConfiguration()->CamDistOption = atof(Value); } },
 #endif
 			{ "ChatFontOption", [](const char* Value) {
 				ZGetConfiguration()->GetChat()->Font = Value; } },
@@ -1017,6 +1027,7 @@ bool ZOptionInterface::SaveInterfaceOption(void)
 		GetRGMain().GetChat().SetBackgroundColor(Cfg.GetChat()->BackgroundColor);
 
 		SetFOV(ToRadian(Cfg.FOV));
+		ZGetCamera()->RSetCameraDistance(Cfg.CamDistOption);
 	}
 
 	{

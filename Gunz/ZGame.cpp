@@ -100,10 +100,12 @@ float GetFOV()
 	return g_fFOV;
 }
 
+
 void SetFOV(float x)
 {
 	g_fFOV = ZGetConfiguration()->GetCamFix() ? FixedFOV(x) : x;
 }
+
 
 MUID tempUID(0, 0);
 MUID g_MyChrUID(0, 0);
@@ -345,6 +347,7 @@ bool ZGame::Create(MZFileSystem *pfs, ZLoadingProgress *pLoading )
 	}
 
 	SetFOV(ToRadian(ZGetConfiguration()->GetFOV()));
+	ZGetCamera()->RSetCameraDistance(ZGetConfiguration()->GetCamDist());
 
 	rvector dir = GetMapDesc()->GetWaitCamDir();
 	rvector pos = GetMapDesc()->GetWaitCamPos();
@@ -1054,6 +1057,7 @@ bool ZGame::OnCommand_Immediate(MCommand* pCommand)
 			break;
 		if (!pCommand->GetParameter(&dir, 1, MPT_VECTOR))
 			break;
+		ZChatOutputF("%s massive!", pSender.GetUserName());
 
 		OnPeerMassive(&pSender, pos, dir);
 	}
@@ -2328,10 +2332,10 @@ void ZGame::OnPeerShot_Melee(const MUID& uidOwner, float fShotTime)
 		ZGetEffectManager()->AddBloodEffect(tpos, -fTarDir);
 		ZGetEffectManager()->AddSlashEffect(tpos, -fTarDir, cm);
 
-		float fActualDamage = (float)pDesc->m_nDamage;
+		//float fActualDamage = (float)pDesc->m_nDamage;
 		float fRatio = pItem->GetPiercingRatio(pDesc->m_nWeaponType, eq_parts_chest);
 		pTar->OnDamaged(pOwner, pOwner->GetPosition(), ZD_MELEE, pDesc->m_nWeaponType,
-			fActualDamage, fRatio, cm);
+			15, fRatio, cm);
 
 		ZActor* pATarget = MDynamicCast(ZActor, pTar);
 
@@ -2383,6 +2387,8 @@ void ZGame::OnPeerShot_Melee(const MUID& uidOwner, float fShotTime)
 
 void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &dir, int Type)
 {
+
+	MessageBox(NULL, "IFrames", "wyd bro?", NULL);
 	//g_Attacks[pOwner].TotalSlashes++;
 
 	//test commenting out this
@@ -2404,7 +2410,7 @@ void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &d
 
 	int nRange = pDesc->m_nRange + 100;
 
-	float fDamage = pDesc->m_nDamage;
+	float fDamage = 15.0f;
 
 	int cm = SelectSlashEffectMotion(pOwner);
 
@@ -2441,8 +2447,16 @@ void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &d
 
 		if (ZGetGameClient()->GetMatchStageSetting()->InvulnerabilityStates())
 		{
-			if (CheckWall(pOwner, pTarget))
+			if (CheckWall(pOwner, pTarget)) {
 				continue;
+			}
+			rvector p1 = pOwner->GetPosition() + rvector(0.f, 0.f, 100.f);
+			rvector p2 = pTarget->GetPosition() + rvector(0.f, 0.f, 100.f);
+
+			//MessageBox(NULL, "IFrames", "wyd bro?", NULL);
+
+			ZChatOutputF("iFrame check1 : %s : %s : %s", p1.x, p1.y, p1.z);
+			ZChatOutputF("iFrame check2 : %s : %s : %s", p2.x, p2.y, p2.z);
 		}
 
 		rvector v1 = pos + rvector(0, 0, 100),
@@ -2523,6 +2537,8 @@ void ZGame::OnPeerSlash(ZCharacter *pOwner, const rvector &pos, const rvector &d
 
 void ZGame::OnPeerMassive(ZCharacter *pOwner, const rvector &pos, const rvector &dir)
 {
+	ZChatOutputF("%s OnPeerMassive!", pOwner->GetUserName());
+	MessageBox(NULL, "IFrames", "wyd bro?", NULL);
 	const int nRange = 280;
 
 	GetRGMain().OnMassive(pOwner, pos, dir);
@@ -2562,8 +2578,17 @@ void ZGame::OnPeerMassive(ZCharacter *pOwner, const rvector &pos, const rvector 
 
 		if (ZGetGameClient()->GetMatchStageSetting()->InvulnerabilityStates())
 		{
-			if (CheckWall(pOwner, pVictim))
+			if (CheckWall(pOwner, pVictim)) {
+
 				continue;
+			}
+			rvector p1 = pOwner->GetPosition() + rvector(0.f, 0.f, 100.f);
+			rvector p2 = pVictim->GetPosition() + rvector(0.f, 0.f, 100.f);
+
+			ZChatOutputF("iFrame check1 : %s : %s : %s", p1.x, p1.y, p1.z);
+			ZChatOutputF("iFrame check2 : %s : %s : %s", p2.x, p2.y, p2.z);
+
+			//MessageBox(NULL, "IFrames", "wyd bro?", NULL);
 		}
 
 		rvector v1 = pos + rvector(0, 0, 100),
@@ -2605,7 +2630,7 @@ void ZGame::OnPeerMassive(ZCharacter *pOwner, const rvector &pos, const rvector 
 
 #define SLASH_DAMAGE	3
 
-		int nSwordDamage = pDesc->m_nDamage;
+		int nSwordDamage = 15;
 
 		int damage = (1.5f - (1.5f - 0.9f) * (std::max(fDist - MAX_DMG_RANGE, 0.0f) / (nRange - MAX_DMG_RANGE))) * nSwordDamage;
 

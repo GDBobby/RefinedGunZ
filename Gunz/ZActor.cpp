@@ -792,23 +792,12 @@ void ZActor::OnDamaged(ZObject* pAttacker, rvector srcPos, ZDAMAGETYPE damageTyp
 
 				ZCharacterObject* pCObj = MDynamicCast(ZCharacterObject, pAttacker);
 
-				bool bLightningDamage = false;
-
-				if(pCObj) {
-					ZC_ENCHANT etype = pCObj->GetEnchantType();
-					if( etype == ZC_ENCHANT_LIGHTNING )
-						bLightningDamage = true;	
-				}
-
-				if(bLightningDamage && (damageType==ZD_KATANA_SPLASH)) {
-					m_Animation.Input(ZA_EVENT_LIGHTNING_DAMAGED);
+				
+				if (nMeleeType % 2) {
+					m_Animation.Input(ZA_EVENT_MELEE_DAMAGED1);
 				}
 				else {
-					if(nMeleeType%2)
-						m_Animation.Input(ZA_EVENT_MELEE_DAMAGED1);
-					else
-						m_Animation.Input(ZA_EVENT_MELEE_DAMAGED2);
-
+					m_Animation.Input(ZA_EVENT_MELEE_DAMAGED2);
 				}
 				SetVelocity(0,0,0);
 			}

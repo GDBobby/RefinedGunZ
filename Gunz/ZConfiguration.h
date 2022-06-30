@@ -208,6 +208,7 @@ public:
 	bool GetUnlockedDir() const { return UnlockedDir; }
 	bool GetShowDebugInfo() const { return ShowDebugInfo; }
 	float GetFOV() const { return FOV; }
+	float GetCamDist() const { return CamDistOption; }
 	bool GetColorInvert() const { return ColorInvert; }
 	bool GetMonochrome() const { return Monochrome; }
 
@@ -255,6 +256,7 @@ private:
 	int LogicalFPSLimit = 250;
 
 	bool bCamFix{};
+	bool bCamDist{};
 	bool InterfaceFix{};
 	bool bShowHitboxes{};
 	bool bDynamicResourceLoad{};
@@ -264,6 +266,7 @@ private:
 	bool UnlockedDir{};
 	bool ShowDebugInfo{};
 	float FOV = ToDegree(DEFAULT_FOV);
+	float CamDistOption = 290.f;
 	bool ColorInvert{};
 	bool Monochrome{};
 };
@@ -371,6 +374,7 @@ ZConfiguration*	ZGetConfiguration();
 #define ZTOK_ETC_UNLOCKEDDIR		"UNLOCKEDDIR"
 #define ZTOK_ETC_SHOWDEBUGINFO		"SHOWDEBUGINFO"
 #define ZTOK_ETC_FOV				"FOV"
+#define ZTOK_ETC_CAMDISTOPTION		"CAMDISTOPTION"
 #define ZTOK_ETC_COLORINVERT		"COLORINVERT"
 #define ZTOK_ETC_MONOCHROME			"MONOCHROME"
 #define ZTOK_ETC_ASYNCSCREENSHOTS	"ASYNCSCREENSHOTS"

@@ -2660,13 +2660,18 @@ void ZMyCharacter::OnDelayedWork(ZDELAYEDWORKITEM& Item)
 		break;
 	case ZDW_MASSIVE:
 		Discharged();
-		if (m_bSlash || m_bJumpSlash)
+		ZChatOutputF("Delayed work ZDW Massive");
+		if (m_bSlash || m_bJumpSlash) {
 			ZPostSkill(g_pGame->GetTime(), ZC_SKILL_SPLASHSHOT, GetItems()->GetSelectedWeaponParts());
+			
+		}
 		break;
 	case ZDW_RG_SLASH:
 		ZPostRGSlash(m_Position, m_Direction, reinterpret_cast<int>(Item.Data));
+		ZChatOutputF("Delayed work ZDW Slash");
 		break;
 	case ZDW_RG_MASSIVE:
+		ZChatOutputF("Delayed work ZDW_RG Massive");
 		Discharged();
 		if (m_bSlash || m_bJumpSlash)
 			ZPostRGMassive(m_Position, m_Direction);
@@ -2731,6 +2736,8 @@ void ZMyCharacter::ChargedShot()
 	m_bSlash = true;
 	m_bTumble = false;
 
+	ZChatOutputF("Charged Shot");
+
 	// Temporary fix for double massive bug.
 	m_bCharged = false;
 
@@ -2757,6 +2764,9 @@ void ZMyCharacter::JumpChargedShot()
 	m_bTumble = false;
 	m_bCharged = false;
 	ReleaseLButtonQueue();
+
+
+	ZChatOutputF("Jump Charged Shot");
 
 	if (ZGetGameClient()->GetMatchStageSetting()->IsVanillaMode())
 	{

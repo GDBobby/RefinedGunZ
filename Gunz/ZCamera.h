@@ -4,7 +4,7 @@
 
 _USING_NAMESPACE_REALSPACE2
 
-#define CAMERA_DEFAULT_DISTANCE		290.f
+#define CAMERA_DEFAULT_DISTANCE		600.f
 
 #define CAMERA_DEFAULT_ANGLEX		(PI_FLOAT/2.f)
 #define CAMERA_DEFAULT_ANGLEZ		(PI_FLOAT/4.f)
@@ -40,6 +40,7 @@ public:
 
 	void Shock(float fPower, float fDuration, const v3& vDir);
 	void StopShock();
+	void RSetCameraDistance(float nCamDist);
 	void Init();
 
 	auto GetLookMode() const { return m_nLookMode; }

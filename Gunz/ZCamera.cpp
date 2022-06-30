@@ -19,6 +19,8 @@
 #define CAMERA_TRACKSPEED			0.2f
 #define CAMERA_WALL_TRACKSPEED		0.7f
 
+float g_nCameraDistance = 290.f;
+
 ZCamera::ZCamera() : m_fAngleX(CAMERA_DEFAULT_ANGLEX), m_fAngleZ(CAMERA_DEFAULT_ANGLEZ),
 m_fDist(CAMERA_DEFAULT_DISTANCE), m_fCurrentDist(CAMERA_DEFAULT_DISTANCE),
 m_bShocked(false),
@@ -64,6 +66,10 @@ void ZCamera::Update(float fElapsed)
 		DMLog("Camera angle is NaN!\n");
 		m_fAngleX = CAMERA_DEFAULT_ANGLEX;
 		m_fAngleZ = CAMERA_DEFAULT_ANGLEZ;
+	}
+	if (isnan(m_fDist)) {
+		DMLog("Camera dist is NaN!\n");
+		m_fDist = CAMERA_DEFAULT_DISTANCE;
 	}
 
 	ZCombatInterface*	pCombatInterface = ZGetGameInterface()->GetCombatInterface();
@@ -270,12 +276,19 @@ void ZCamera::SetDirection(const rvector& dir)
 	m_fAngleZ = fAngleZ;
 }
 
+void ZCamera::RSetCameraDistance(float nCamDist) {
+	if ((nCamDist > 600.f) && (nCamDist < 10000.f)) nCamDist = 600.f;
+	g_nCameraDistance = nCamDist;
+	m_fDist = g_nCameraDistance;
+	m_fCurrentDist = g_nCameraDistance;
+}
+
 void ZCamera::Init()
 {
 	m_fAngleX = CAMERA_DEFAULT_ANGLEX;
 	m_fAngleZ = CAMERA_DEFAULT_ANGLEZ;
-	m_fDist = CAMERA_DEFAULT_DISTANCE;
-	m_fCurrentDist = CAMERA_DEFAULT_DISTANCE;
+	m_fDist = g_nCameraDistance;
+	m_fCurrentDist = g_nCameraDistance;
 	m_bShocked = false;
 	m_Position = rvector(0, 0, 0);
 	m_CurrentTarget = rvector(0, 0, 0);

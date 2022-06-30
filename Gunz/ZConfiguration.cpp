@@ -454,6 +454,7 @@ bool ZConfiguration::LoadConfig(const char* szFileName)
 			childElement.GetChildContents(&ShowDebugInfo, ZTOK_ETC_SHOWDEBUGINFO);
 #ifdef ENABLE_FOV_OPTION
 			childElement.GetChildContents(&FOV, ZTOK_ETC_FOV);
+			childElement.GetChildContents(&CamDistOption, ZTOK_ETC_CAMDISTOPTION);
 #endif
 			childElement.GetChildContents(&ColorInvert, ZTOK_ETC_COLORINVERT);
 			childElement.GetChildContents(&Monochrome, ZTOK_ETC_MONOCHROME);
@@ -702,6 +703,7 @@ bool ZConfiguration::SaveToFile(const char *szFileName, const char* szHeader)
 		Section.Add(ZTOK_ETC_SHOWDEBUGINFO, ShowDebugInfo);
 #ifdef ENABLE_FOV_OPTION
 		Section.Add(ZTOK_ETC_FOV, FOV);
+		Section.Add(ZTOK_ETC_CAMDISTOPTION, CamDistOption);
 #endif
 		Section.Add(ZTOK_ETC_COLORINVERT, ColorInvert);
 		Section.Add(ZTOK_ETC_MONOCHROME, Monochrome);

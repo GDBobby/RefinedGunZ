@@ -89,6 +89,7 @@ bool ZGameAction::OnPeerSkill(MCommand* pCommand)
 
 void ZGameAction::OnPeerSkill_LastShot(float fShotTime,ZCharacter *pOwnerCharacter)
 {
+	ZChatOutputF("%s massive!", pOwnerCharacter->GetUserName());
 	if (!pOwnerCharacter) return;
 	ZItem *pItem = pOwnerCharacter->GetItems()->GetItem(MMCIP_MELEE);
 	if (!pItem) return;
@@ -101,15 +102,15 @@ void ZGameAction::OnPeerSkill_LastShot(float fShotTime,ZCharacter *pOwnerCharact
 	fShotTime -= pOwnerCharacter->GetTimeOffset();
 
 	rvector OwnerPosition, OwnerDir;
-	if (!pOwnerCharacter->GetHistory(&OwnerPosition, &OwnerDir, fShotTime))
+	if (!pOwnerCharacter->GetHistory(&OwnerPosition, &OwnerDir, fShotTime)) {
+		ZChatOutputF("invalid owner massive history!");
 		return;
+	}
 
 	rvector waveCenter = OwnerPosition;
 
 	rvector _vdir = OwnerDir;
 	_vdir.z = 0;
-
-	ZC_ENCHANT zc_en_type = pOwnerCharacter->GetEnchantType();
 
 	ZGetSoundEngine()->PlaySound(pOwnerCharacter->IsObserverTarget() ? "we_smash_2d" : "we_smash", waveCenter);
 
@@ -132,7 +133,10 @@ void ZGameAction::OnPeerSkill_LastShot(float fShotTime,ZCharacter *pOwnerCharact
 
 		if (pTar->IsDead()) continue;
 
-		if (!pTar->GetHistory(&TargetPosition, &TargetDir, fShotTime)) continue;
+		if (!pTar->GetHistory(&TargetPosition, &TargetDir, fShotTime)) {
+			ZChatOutputF("invalid victim massive history!");
+			continue;
+		}
 
 		rvector checkPosition = TargetPosition + rvector(0, 0, 80);
 		float fDist = Magnitude(waveCenter - checkPosition);
@@ -157,14 +161,8 @@ void ZGameAction::OnPeerSkill_LastShot(float fShotTime,ZCharacter *pOwnerCharact
 
 						tpos.z += 130.f;
 
-						if (zc_en_type == ZC_ENCHANT_NONE) {
-
-							ZGetEffectManager()->AddSwordUppercutDamageEffect(tpos, pTar->GetUID());
-						}
-						else {
-
-							ZGetEffectManager()->AddSwordEnchantEffect(zc_en_type, pTar->GetPosition(), 20);
-						}
+						ZGetEffectManager()->AddSwordUppercutDamageEffect(tpos, pTar->GetUID());
+						
 
 						tpos -= pOwnerCharacter->m_Direction * 50.f;
 
@@ -178,15 +176,12 @@ void ZGameAction::OnPeerSkill_LastShot(float fShotTime,ZCharacter *pOwnerCharact
 
 #define SPLASH_DAMAGE_RATIO	.4f
 #define SLASH_DAMAGE	3
-						int damage = (int)pDesc->m_nDamage * fDamageRange;
-
-						if (zc_en_type == ZC_ENCHANT_NONE)
-							damage *= SLASH_DAMAGE;
+						int damage = 15 * fDamageRange * SLASH_DAMAGE;
 
 						pTar->OnDamaged(pOwnerCharacter, pOwnerCharacter->GetPosition(), ZD_KATANA_SPLASH, MWT_KATANA, damage, SPLASH_DAMAGE_RATIO);
 						pTar->OnDamagedAnimation(pOwnerCharacter, SEM_WomanSlash5);
 
-						ZPostPeerEnchantDamage(pOwnerCharacter->GetUID(), pTar->GetUID());
+						//ZPostPeerEnchantDamage(pOwnerCharacter->GetUID(), pTar->GetUID());
 					}
 				}
 			}
