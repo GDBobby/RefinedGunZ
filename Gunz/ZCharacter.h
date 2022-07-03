@@ -139,7 +139,7 @@ public:
 
 	bool isInvincible();
 	
-	bool IsMan() const;
+	MMatchSex IsMan() const;
 
 	virtual void OnUpdate(float fDelta) override;
 	void UpdateSpeed();

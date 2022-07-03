@@ -366,6 +366,7 @@ void ZObserver::OnDraw(MDrawContext* pDC)
 
 
 		// AP
+		/* BOBBYCODE REMOVED AP
 		pDC->SetColor( 0, 50, 0, 170);
 		pDC->FillRectangle( 218.0f*fRx, 37.0f*fRy, 150.0f*fRx, 5.0f*fRy);
 		pDC->FillRectangle( 432.0f*fRx, 37.0f*fRy, 150.0f*fRx, 5.0f*fRy);
@@ -376,7 +377,7 @@ void ZObserver::OnDraw(MDrawContext* pDC)
 
 		nWidth = (int)( (float)nAP[1] / fMaxAP[1] * 150.0f * fRx);
 		pDC->FillRectangle( 432.0f*fRx, 37.0f*fRy, nWidth, 5.0f*fRy);
-
+		*/
 
 		// 게이지 프레임 출력
 		MBitmap* pBitmap = MBitmapManager::Get( "duel_score.tga");

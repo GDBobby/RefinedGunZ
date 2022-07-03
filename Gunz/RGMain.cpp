@@ -640,7 +640,7 @@ void RGMain::SetSwordColor(const MUID& UID, uint32_t Color)
 	if (!Char)
 		return;
 
-	Char->m_pVMesh->SetCustomColor(Color & 0x80FFFFFF, Color & 0x0FFFFFFF);
+	//Char->m_pVMesh->SetCustomColor(Color & 0x80FFFFFF, Color & 0x0FFFFFFF);
 }
 
 void RGMain::OnReceiveVoiceChat(ZCharacter *Char, const uint8_t *Buffer, int Length)

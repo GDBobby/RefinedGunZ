@@ -249,6 +249,11 @@
 #define MSG_WORD_MALE_SHORT						9102		///< 남
 #define MSG_WORD_FEMALE_SHORT					9103		///< 여
 
+#define MSG_WORD_MALE10							9110		//BOBBYCODE
+#define MSG_WORD_FEMALE10						9111
+#define MSG_WORD_MALE10_SHORT					9112
+#define MSG_WORD_FEMALE10_SHORT					9113
+
 #define MSG_WORD_LOBBY							9200		///< 로비
 #define MSG_WORD_STAGE							9201		///< 스테이지
 #define MSG_WORD_SHOP							9202		///< 상점

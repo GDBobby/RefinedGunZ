@@ -402,6 +402,21 @@ inline void ZPostDeleteMyChar(const MUID& uidChar, const int nCharIndex, char* s
 inline void ZPostCreateMyChar(const MUID& uidChar, const int nCharIndex, char* szCharName,
 							  const int nSex, const int nHair, const int nFace, const int nCostume)
 {
+	/*
+	if (nSex == 0) {
+		MessageBox(NULL, "MALE1.5", "gender", 0);
+	}
+	else if (nSex == 1) {
+		MessageBox(NULL, "FEMALE1.5", "gender", 0);
+	}
+	else if (nSex == 2) {
+		MessageBox(NULL, "MALE1.0", "gender", 0);
+	}
+	else if (nSex == 3) {
+		MessageBox(NULL, "FEMALE1.0", "gender", 0);
+	}
+	*/
+
 	ZPOSTCMD7(MC_MATCH_REQUEST_CREATE_CHAR, MCommandParameterUID(uidChar),
 		MCommandParameterUInt(nCharIndex),
 		MCommandParameterString(szCharName),
@@ -409,6 +424,7 @@ inline void ZPostCreateMyChar(const MUID& uidChar, const int nCharIndex, char* s
 		MCommandParameterUInt(nHair),
 		MCommandParameterUInt(nFace),
 		MCommandParameterUInt(nCostume));
+
 }
 
 inline void ZPostSimpleCharInfo(const MUID& uidChar)

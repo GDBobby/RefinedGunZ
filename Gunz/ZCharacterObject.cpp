@@ -129,7 +129,8 @@ void ZCharacterObject::EnChantMovingEffect(rvector* pOutPos,int cnt,ZC_ENCHANT e
 		float asf = (rand()%10)/10.f;
 		rvector pos = pOutPos[0] + (pOutPos[1]-pOutPos[0]) * asf;
 
-		DrawEnchantSub( etype , pos );
+		//BOBBYCODE BAD ENCHANTS
+		//DrawEnchantSub( etype , pos );
 
 		if(bDoubleWeapon)
 		{
@@ -140,7 +141,7 @@ void ZCharacterObject::EnChantMovingEffect(rvector* pOutPos,int cnt,ZC_ENCHANT e
 			float asf = (rand()%10)/10.f;
 			rvector pos = pOutPos[2] + (pOutPos[3]-pOutPos[2]) * asf;
 
-			DrawEnchantSub( etype , pos );
+			//DrawEnchantSub( etype , pos );
 		}
 	}
 }

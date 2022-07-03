@@ -80,7 +80,15 @@ void ZShop::Serialize()
 
 			if (pItemDesc != NULL) {
 				if (pItemDesc->m_nResSex != -1)	{
-					if (pItemDesc->m_nResSex != int(ZGetMyInfo()->GetSex())) continue;
+					MMatchSex tempSex = ZGetMyInfo()->GetSex();
+					if (tempSex == MMS_MALE10) {
+						tempSex = MMS_MALE;
+					}
+					if (tempSex == MMS_FEMALE10) {
+						tempSex = MMS_FEMALE;
+					}
+
+					if (pItemDesc->m_nResSex != int(tempSex)) continue;
 				}
 
 				MUID uidItem = MUID(0, i+1);

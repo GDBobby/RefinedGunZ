@@ -383,7 +383,7 @@ void ZCharacterSelectView::SelectChar(int nSelectIndex)
 
 	if (!m_CharInfo[nSelectIndex].m_bLoaded) return;
 
-	if (m_CharInfo[nSelectIndex].m_CharInfo.nSex == 0)
+	if ((m_CharInfo[nSelectIndex].m_CharInfo.nSex == MMS_MALE) || (m_CharInfo[nSelectIndex].m_CharInfo.nSex == MMS_MALE10))
 	{
 		m_pMesh = ZGetMeshMgr()->Get("heroman1");
 	}
@@ -451,7 +451,6 @@ void ZCharacterSelectView::SelectChar(int nSelectIndex)
 
 	if(Enable_Cloth)
 		m_pVisualMesh->ChangeChestCloth(1.f,3);
-
 }
 
 void ZCharacterSelectView::SetState(ZSelectViewState nState)
@@ -475,6 +474,13 @@ void ZCharacterSelectView::OnChangedCharInfo(int sex,int index)
 
 //	nItemID[MMCIP_HEAD] = g_InitialHair[nHairIndex][(int)(nSex)];
 	nItemID[MMCIP_HEAD] = 0;
+
+	if (sex == MMS_MALE10) {
+		sex = MMS_MALE;
+	}
+	if (sex == MMS_FEMALE10) {
+		sex = MMS_FEMALE;
+	}
 
 	// ÄÚ½ºÃõ
 	nItemID[MMCIP_MELEE] = g_InitialCostume[index][sex].nMeleeItemID;
@@ -538,7 +544,7 @@ void ZCharacterSelectView::OnChangedCharCostume()
 	{
 		MMatchSex nSex = MMatchSex(pSexCB->GetSelIndex());
 
-		if (nSex == MMS_MALE)
+		if (nSex == MMS_MALE || nSex == MMS_MALE10)
 		{
 			m_pMesh = ZGetMeshMgr()->Get("heroman1");
 		}
@@ -554,15 +560,23 @@ void ZCharacterSelectView::OnChangedCharCostume()
 
 		u32 nItemID[MMCIP_END]{};
 
-		nItemID[MMCIP_MELEE] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nMeleeItemID;
-		nItemID[MMCIP_PRIMARY] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nPrimaryItemID;
-		nItemID[MMCIP_SECONDARY] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nSecondaryItemID;
-		nItemID[MMCIP_CUSTOM1] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nCustom1ItemID;
+		MMatchSex tempSex = nSex;
+		if (tempSex == MMS_MALE10) {
+			tempSex = MMS_MALE;
+		}
+		if (tempSex == MMS_FEMALE10) {
+			tempSex = MMS_FEMALE;
+		}
+
+		nItemID[MMCIP_MELEE] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nMeleeItemID;
+		nItemID[MMCIP_PRIMARY] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nPrimaryItemID;
+		nItemID[MMCIP_SECONDARY] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nSecondaryItemID;
+		nItemID[MMCIP_CUSTOM1] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nCustom1ItemID;
 		nItemID[MMCIP_HEAD] = 0;
-		nItemID[MMCIP_CHEST] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nChestItemID;
-		nItemID[MMCIP_HANDS] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nHandsItemID;
-		nItemID[MMCIP_LEGS] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nLegsItemID;
-		nItemID[MMCIP_FEET] = g_InitialCostume[nCostumeIndex][(int)(nSex)].nFeetItemID;
+		nItemID[MMCIP_CHEST] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nChestItemID;
+		nItemID[MMCIP_HANDS] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nHandsItemID;
+		nItemID[MMCIP_LEGS] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nLegsItemID;
+		nItemID[MMCIP_FEET] = g_InitialCostume[nCostumeIndex][(int)(tempSex)].nFeetItemID;
 
 		OnChangedCharInfo((int)nSex,nCostumeIndex);
 

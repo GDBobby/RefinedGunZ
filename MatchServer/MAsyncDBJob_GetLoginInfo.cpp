@@ -13,7 +13,7 @@ void MAsyncDBJob_GetLoginInfo::Run(void* pContext)
 	{
 		int nGunzSex;	// 건즈디비의 성별값은 넷마블 성별값과 반대이다.
 		if (m_nSex == 0) nGunzSex = 1; else nGunzSex = 0;
-
+		MessageBox(NULL, "Please god", "gender", 0);
 		int nCert = 0;
 		if (strlen(m_szCertificate) > 0)
 		{

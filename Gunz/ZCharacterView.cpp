@@ -149,7 +149,7 @@ void ZCharacterView::InitCharParts(MMatchSex nSex, unsigned int nHair, unsigned 
 				   u32* nEquipItemIDs, MMatchCharItemParts nVisualWeaponParts)
 {
 	RMesh* pMesh = NULL;
-	if (nSex == MMS_MALE)
+	if ((nSex == MMS_MALE) || (nSex == MMS_MALE10))
 	{
 		pMesh = ZGetMeshMgr()->Get("heroman1");
 	}
@@ -215,7 +215,15 @@ void ZCharacterView::SetParts(MMatchCharItemParts nParts, unsigned int nItemID)
 
 		if (pItemDesc->m_nResSex != -1)
 		{
-			if (pItemDesc->m_nResSex != int(ZGetMyInfo()->GetSex())) return;
+			MMatchSex tempSex = ZGetMyInfo()->GetSex();
+			if (tempSex == MMS_MALE10) {
+				tempSex = MMS_MALE;
+			}
+			if (tempSex == MMS_FEMALE10) {
+				tempSex = MMS_FEMALE;
+			}
+
+			if (pItemDesc->m_nResSex != int(tempSex)) return;
 		}
 	}
 

@@ -208,7 +208,7 @@ void ZGameAction::OnPeerSkill_Uppercut(ZCharacter *pOwnerCharacter)
 
 	if (!pOwnerCharacter->IsNPC())
 	{
-		if (pOwnerCharacter->GetProperty()->nSex == MMS_MALE)
+		if (pOwnerCharacter->GetProperty()->nSex == MMS_MALE || pOwnerCharacter->GetProperty()->nSex == MMS_MALE10)
 			ZGetSoundEngine()->PlaySound("fx2/MAL_shot_01", pOwnerCharacter->GetPosition());
 		else
 			ZGetSoundEngine()->PlaySound("fx2/FEM_shot_01", pOwnerCharacter->GetPosition());
@@ -283,7 +283,7 @@ void ZGameAction::OnPeerSkill_Uppercut(ZCharacter *pOwnerCharacter)
 
 						if (!pTar->IsNPC())
 						{
-							if (((ZCharacter*)pTar)->GetProperty()->nSex == MMS_MALE)
+							if (pOwnerCharacter->GetProperty()->nSex == MMS_MALE || pOwnerCharacter->GetProperty()->nSex == MMS_MALE10)
 								ZGetSoundEngine()->PlaySound("fx2/MAL07", pTar->GetPosition());
 							else
 								ZGetSoundEngine()->PlaySound("fx2/FEM07", pTar->GetPosition());

@@ -14,6 +14,6 @@ public:
 private:
 	bool LoadAnimations(const char* filename, int Index);
 
-	RealSpace2::RAnimationMgr AniMgrs[2]; // 0 = male, 1 = female
+	RealSpace2::RAnimationMgr AniMgrs[4]; // 0 = male, 1 = female
 	std::unordered_map<std::string, RealSpace2::RBspObject> Maps;
 };

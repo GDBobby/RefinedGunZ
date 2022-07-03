@@ -428,7 +428,11 @@ bool ZGame::Create(MZFileSystem *pfs, ZLoadingProgress *pLoading )
 	m_pMyCharacter->GetStatus()->nLoadingPercent = 100;
 	ZPostLoadingComplete(ZGetGameClient()->GetPlayerUID(), 100);
 
+	//MessageBox(NULL, "ZGameCreate ZPostStageEnterBattle before", "gender", 0);
+
 	ZPostStageEnterBattle(ZGetGameClient()->GetPlayerUID(), ZGetGameClient()->GetStageUID());
+
+	//MessageBox(NULL, "ZGameCreate ZPostStageEnterBattle after", "gender", 0);
 
 	char tmpbuf[128];
 	_strtime_s(tmpbuf);
@@ -436,6 +440,8 @@ bool ZGame::Create(MZFileSystem *pfs, ZLoadingProgress *pLoading )
 	mlog("ZGame Created ( %s )\n",tmpbuf);
 
 	ZGetGameInterface()->GetCamera()->SetLookMode(ZCAMERA_DEFAULT);
+
+	//MessageBox(NULL, "ZGameCreate end", "gender", 0);
 
 	return true;
 }
@@ -890,8 +896,49 @@ void ZGame::FlushObserverCommands()
 	}
 }
 
+static void ZTranslateCommand(MCommand* pCmd, std::string& strLog)
+{
+	char szBuf[256] = "";
+
+	auto nGlobalClock = ZGetGame()->GetTickTime();
+	itoa_safe(nGlobalClock, szBuf, 10);
+	strLog = szBuf;
+	strLog += ": ";
+
+	// Command
+	strLog += pCmd->m_pCommandDesc->GetName();
+
+	// PlayerName
+	std::string strPlayerName;
+	MUID uid = pCmd->GetSenderUID();
+	ZCharacter* pChar = ZGetCharacterManager()->Find(uid);
+	if (pChar)
+		strPlayerName = pChar->GetProperty()->szName;
+	else
+		strPlayerName = "Unknown";
+
+	strLog += " (";
+	strLog += strPlayerName;
+	strLog += ") ";
+
+	// Params
+	std::string strParams;
+	for (int i = 0; i < pCmd->GetParameterCount(); i++) {
+		char szParam[256] = "";
+		pCmd->GetParameter(i)->GetString(szParam);
+		strParams += szParam;
+		if (i < pCmd->GetParameterCount() - 1)
+			strParams += ", ";
+	}
+	strLog += strParams;
+}
+
 bool ZGame::OnCommand(MCommand* pCommand)
 {
+	string strCmd;
+	ZTranslateCommand(pCommand, strCmd);
+
+	//MessageBox(NULL, strCmd.c_str(), "OnCommand", 0);
 	if(m_bRecording)
 	{
 		ZObserverCommandItem *pItem = new ZObserverCommandItem;
@@ -903,13 +950,17 @@ bool ZGame::OnCommand(MCommand* pCommand)
 	}
 
 	if(ZGetGameInterface()->GetCombatInterface()->GetObserverMode()){
+		//MessageBox(NULL, "observer mode command", "gender", 0);
 		OnCommand_Observer(pCommand);
 		return true;
 	}
 
-	if(FilterDelayedCommand(pCommand))
+	if (FilterDelayedCommand(pCommand)) {
+		//MessageBox(NULL, "filter delayed command", "gender", 0);
 		return true;
+	}
 
+	//MessageBox(NULL, "OnCommandImmediate", "gender", 0);
 	return OnCommand_Immediate(pCommand);
 }
 
@@ -955,43 +1006,6 @@ bool ZGame::GetUserNameColor(MUID uid, MCOLOR& UserNameColor, char* sp_name, siz
 	return GetUserGradeIDColor(gid, UserNameColor, sp_name, maxlen);
 }
 
-static void ZTranslateCommand(MCommand* pCmd, std::string& strLog)
-{
-	char szBuf[256]="";
-
-	auto nGlobalClock = ZGetGame()->GetTickTime();
-	itoa_safe(nGlobalClock, szBuf, 10);
-	strLog = szBuf;
-	strLog += ": ";
-
-	// Command
-	strLog += pCmd->m_pCommandDesc->GetName();
-
-	// PlayerName
-	std::string strPlayerName;
-	MUID uid = pCmd->GetSenderUID();
-	ZCharacter* pChar = ZGetCharacterManager()->Find(uid);
-	if (pChar)
-		strPlayerName = pChar->GetProperty()->szName;
-	else
-		strPlayerName = "Unknown";
-
-	strLog += " (";
-	strLog += strPlayerName;
-	strLog += ") ";
-
-	// Params
-	std::string strParams;
-	for(int i=0; i<pCmd->GetParameterCount(); i++){
-		char szParam[256]="";
-		pCmd->GetParameter(i)->GetString(szParam);
-		strParams += szParam;
-		if (i<pCmd->GetParameterCount()-1)
-			strParams += ", ";
-	}
-	strLog += strParams;
-}
-
 static void ZLogCommand(MCommand* pCmd)
 {
 	if (pCmd->GetID() == MC_AGENT_TUNNELING_UDP) {
@@ -1007,7 +1021,6 @@ static void ZLogCommand(MCommand* pCmd)
 
 bool ZGame::OnCommand_Immediate(MCommand* pCommand)
 {
-
 	//unnecessary scope?
 	auto&& Bot = GetBotInfo().MyBot;
 	if (Bot && Bot->GetState() == BotStateType::Recording && pCommand->GetSenderUID() == m_pMyCharacter->GetUID())
@@ -1633,7 +1646,7 @@ bool ZGame::OnCommand_Immediate(MCommand* pCommand)
 		OnLocalOptainSpecialWorldItem(pCommand);
 		break;
 	}
-
+	//MessageBox(NULL, "OnCommandImmediate end", "gender", 0);
 	return true;
 }
 
@@ -2228,7 +2241,9 @@ int ZGame::SelectSlashEffectMotion(ZCharacter* pCharacter)
 
 	MMatchWeaponType nType = pCharacter->GetSelectItemDesc()->m_nWeaponType;
 
-	if(pCharacter->IsMan()) {
+	//MessageBox(NULL, "select slash effect", "gender", 0);
+
+	if((pCharacter->IsMan() == MMS_MALE) || (pCharacter->IsMan() == MMS_MALE10)) {
 
 			 if(lower == ZC_STATE_LOWER_ATTACK1) {	nAdd = 0;	}
 		else if(lower == ZC_STATE_LOWER_ATTACK2) {	nAdd = 1;	}
@@ -3406,7 +3421,7 @@ void ZGame::OnPeerSpMotion(const MUID& uid,int nMotionType)
 		zsl = ZC_STATE_TAUNT;
 
 		char szSoundName[ 50];
-		if ( pCharacter->GetProperty()->nSex == MMS_MALE)
+		if ( pCharacter->GetProperty()->nSex == MMS_MALE || pCharacter->GetProperty()->nSex == MMS_MALE10)
 			sprintf( szSoundName, "fx2/MAL1%d", (RandomNumber(0, 300) % 3) + 1);
 		else
 			sprintf( szSoundName, "fx2/FEM1%d", (RandomNumber(0, 300) % 3) + 1);
@@ -3421,7 +3436,7 @@ void ZGame::OnPeerSpMotion(const MUID& uid,int nMotionType)
 	{
 		zsl = ZC_STATE_LAUGH;
 
-		if ( pCharacter->GetProperty()->nSex == MMS_MALE)
+		if (pCharacter->GetProperty()->nSex == MMS_MALE || pCharacter->GetProperty()->nSex == MMS_MALE10)
 			ZGetSoundEngine()->PlaySound( "fx2/MAL01", pCharacter->GetPosition());
 		else
 			ZGetSoundEngine()->PlaySound( "fx2/FEM01", pCharacter->GetPosition());
@@ -3430,7 +3445,7 @@ void ZGame::OnPeerSpMotion(const MUID& uid,int nMotionType)
 	{
 		zsl = ZC_STATE_CRY;
 
-		if ( pCharacter->GetProperty()->nSex == MMS_MALE)
+		if (pCharacter->GetProperty()->nSex == MMS_MALE || pCharacter->GetProperty()->nSex == MMS_MALE10)
 			ZGetSoundEngine()->PlaySound( "fx2/MAL02", pCharacter->GetPosition());
 		else
 			ZGetSoundEngine()->PlaySound( "fx2/FEM02", pCharacter->GetPosition());
@@ -4235,16 +4250,18 @@ void ZGame::AddEffectRoundState(MMATCH_ROUNDSTATE nRoundState, int nArg)
 							if ( uidTarget == pCharacter->GetUID())
 							{
 								if ( pCharacter->IsDead())
-									bAddLose |= true;
+									//BOBBYCODE OR BITWISE???
+									//bAddLose |= true;
+									bAddLose = true;
 								else
-									bAddWin |= true;
+									bAddWin = true;
 							}
 							else
 							{
 								if ( pCharacter->IsDead())
-									bAddWin |= true;
+									bAddWin = true;
 								else
-									bAddLose |= true;
+									bAddLose = true;
 							}
 
 							nCount++;
@@ -4529,6 +4546,7 @@ void ZGame::DeleteCharacter(const MUID& uid)
 
 void ZGame::OnStageEnterBattle(MCmdEnterBattleParam nParam, MTD_PeerListNode* pPeerNode)
 {
+	//MessageBox(NULL, "ZGame OnStageEnterBattle beginning", "gender", 0);
 	if (ZApplication::GetGameInterface()->GetState() != GUNZ_GAME) return;
 
 	MUID uidChar = pPeerNode->uidChar;
@@ -4558,6 +4576,7 @@ void ZGame::OnStageEnterBattle(MCmdEnterBattleParam nParam, MTD_PeerListNode* pP
 	}
 
 	ZGetGameClient()->OnStageEnterBattle(uidChar,nParam,pPeerNode);
+	//MessageBox(NULL, "ZGame OnStageEnterBattle end", "gender", 0);
 }
 
 void ZGame::OnStageLeaveBattle(const MUID& uidChar, const MUID& uidStage)
@@ -4592,6 +4611,7 @@ void ZGame::OnStageLeaveBattle(const MUID& uidChar, const MUID& uidStage)
 
 void ZGame::OnAddPeer(const MUID& uidChar, DWORD dwIP, const int nPort, MTD_PeerListNode* pNode)
 {
+	//MessageBox(NULL, "OnAddPeer beg", "gender", 0);
 	if (ZApplication::GetGameInterface()->GetState() != GUNZ_GAME || g_pGame == NULL) return;
 
 	assert(pNode);
@@ -4645,6 +4665,7 @@ void ZGame::OnAddPeer(const MUID& uidChar, DWORD dwIP, const int nPort, MTD_Peer
 	}
 
 	ConfigureCharacter(uidChar, (MMatchTeam)pNode->ExtendInfo.nTeam, pNode->ExtendInfo.nPlayerFlags);
+	//MessageBox(NULL, "OnAddPeer end", "gender", 0);
 }
 
 void ZGame::OnPeerList(const MUID& uidStage, void* pBlob, int nCount)

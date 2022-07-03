@@ -195,6 +195,16 @@ void LoadRGCommands(ZChatCmdManager& CmdManager)
 		ZPostSpec(!IsSpec);
 	}, CCF_ALL, 0, 0, true, "/spec", "");
 
+	/*
+	CmdManager.AddCommand(0, "mod", [](const char* line, int argc, char** const argv) {
+		if (ZGetGameInterface()->GetState() != GUNZ_GAME)
+			return;
+
+		bool IsMod = ZGetGame()->m_pMyCharacter->GetTeamID() == MMT_MODERATOR;
+		ZPostMod(!IsMod);
+		}, CCF_ALL, 0, 0, true, "/mod", "");
+	*/
+
 	CmdManager.AddCommand(0, "fullscreen", [](const char *line, int argc, char ** const argv){
 		ZGetConfiguration()->GetVideo()->FullscreenMode = static_cast<FullscreenType>(atoi(argv[1]));
 

@@ -594,15 +594,16 @@ int ZScreenEffectManager::DrawResetGuages()
 
 	DrawGuage(70.f/800.f , 23.f/600.f , min(1.f,_hp) * 138.f/800.f , 13.f/600.f , 1.f ,color);
 
+	//BOBBYCODE
 	// ap
-	color = D3DCOLOR_ARGB(255, 68,193, 62);
+	//color = D3DCOLOR_ARGB(255, 68,193, 62);
 
-	DrawGuage(84.f/800.f , 50.f/600.f , min(1.f,_ap) * 138.f/800.f , 13.f/600.f , -1.f ,color);
+	DrawGuage((800.f-70.f - min(1.f, _ap) * 138.f / 800.f)/800.f , 23.f/600.f , min(1.f,_ap) * 138.f/800.f , 13.f/600.f , -1.f ,color);
 
-	// exp
-	color = D3DCOLOR_ARGB(255,200,200,200);
+	// exp removed exp
+	//color = D3DCOLOR_ARGB(255,200,200,200);
 
-	DrawGuage(66.f/800.f , 70.f/600.f , min(1.f,m_fGuageEXP) * 138.f/800.f , 4.f/600.f , -1.f ,color);
+	//DrawGuage(66.f/800.f , 70.f/600.f , min(1.f,m_fGuageEXP) * 138.f/800.f , 4.f/600.f , -1.f ,color);
 
 	if(_hp > 1.0f)
 	{
@@ -660,15 +661,19 @@ void ZScreenEffectManager::DrawGuages()
 
 	DrawGuage(70.f/800.f , 23.f/600.f , min(1.f,m_fGuageHP) * 138.f/800.f , 13.f/600.f , 1.f ,color);
 
-	// ap
-	color = D3DCOLOR_ARGB(255, 68,193, 62);
+	// ap BOBBYCODE
+	//color = D3DCOLOR_ARGB(255, 68,193, 62);
+	if (m_fGuageAP == 1.0f)		color = D3DCOLOR_ARGB(255, 0, 128, 255);
+	else if (m_fGuageAP > 0.7f)	color = D3DCOLOR_ARGB(255, 69, 177, 186);
+	else if (m_fGuageAP > 0.3f)	color = D3DCOLOR_ARGB(255, 231, 220, 24);
+	else						color = D3DCOLOR_ARGB(255, 233, 44, 22);
 
-	DrawGuage(84.f/800.f , 50.f/600.f , min(1.f,m_fGuageAP) * 138.f/800.f , 13.f/600.f , -1.f ,color);
+	DrawGuage((800.f - 70.f - min(1.f, m_fGuageAP) * 138.f / 800.f) / 800.f, 23.f / 600.f, min(1.f, m_fGuageAP) * 138.f / 800.f, 13.f / 600.f, -1.f, color);
 
 	// exp
-	color = D3DCOLOR_ARGB(255,200,200,200);
+	//color = D3DCOLOR_ARGB(255,200,200,200);
 
-	DrawGuage(66.f/800.f , 70.f/600.f , min(1.f,m_fGuageEXP) * 138.f/800.f , 4.f/600.f , -1.f ,color);
+	//DrawGuage(66.f/800.f , 70.f/600.f , min(1.f,m_fGuageEXP) * 138.f/800.f , 4.f/600.f , -1.f ,color);
 
 	// alpha
 	RGetDevice()->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE);
@@ -692,7 +697,9 @@ void ZScreenEffectManager::DrawGuages()
 		float x = min(1.f,m_fGuageAP) * 138.f/800.f;	
 		float w = (m_fCurGuageAP-m_fGuageAP) * 138.f/800.f;
 
-		DrawGuage(84.f/800.f+x , 50.f/600.f , w , 13.f/600.f , -1.f ,color);
+		//BOBBYCODE
+		////DrawGuage(84.f/800.f , 50.f/600.f , min(1.f,m_fGuageAP) * 138.f/800.f , 13.f/600.f , -1.f ,color);
+		DrawGuage((800.f - 70.f - min(1.f, m_fGuageAP) * 138.f / 800.f) / 800.f + x , 23.f/600.f , w , 13.f/600.f , -1.f ,color);
 	}
 
 	RGetDevice()->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE);
@@ -739,7 +746,6 @@ void ZScreenEffectManager::Draw()
 				}
 			}
 		}
-
 		if (ZApplication::GetGame()->GetMatch()->GetMatchType() != MMATCH_GAMETYPE_DUEL ||
 			!pTargetCharacter->IsObserverTarget())
 		{

@@ -239,7 +239,7 @@ void MMatchStage::EnterBattle(MMatchObject* pObj)
 	}
 
 	pObj->SetForcedEntry(false);
-
+	//MessageBox(NULL, "MMatchStage enter battle END", "gender", 0);
 }
 
 void MMatchStage::LeaveBattle(MMatchObject* pObj)

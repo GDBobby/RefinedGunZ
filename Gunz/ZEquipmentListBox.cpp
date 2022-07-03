@@ -756,7 +756,15 @@ public:
 			MButton* pButton = (MButton*)ZGetGameInterface()->GetIDLResource()->FindWidget( "BringAccountItemBtn");
 			if ( pButton)
 			{
-				if ( (pItemDesc->m_nResSex == -1) || (pItemDesc->m_nResSex == ZGetMyInfo()->GetSex()) )
+				MMatchSex tempSex = ZGetMyInfo()->GetSex();
+				if (tempSex == MMS_MALE10) {
+					tempSex = MMS_MALE;
+				}
+				if (tempSex == MMS_FEMALE10) {
+					tempSex = MMS_FEMALE;
+				}
+
+				if ( (pItemDesc->m_nResSex == -1) || (pItemDesc->m_nResSex == tempSex) )
 					pButton->Enable( true);
 				else
 					pButton->Enable( false);

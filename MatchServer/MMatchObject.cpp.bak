@@ -264,10 +264,10 @@ void MMatchObject::OnEnterBattle()
 	SetEnterBattle(true);
 	SetKillCount(0);
 	SetDeathCount(0);
-	SetAllRoundDeathCount(0);
+	SetAllRoundDeathCount(0);	
 	SetAllRoundKillCount(0);
+
 	SetMaxHPAP();
-	//MessageBox(NULL, "MMatchObject enter battle END", "gender", 0);
 }
 
 void MMatchObject::OnLeaveBattle()
@@ -516,15 +516,7 @@ bool IsEquipableItem(u32 nItemID, int nPlayerLevel, MMatchSex nPlayerSex)
 	// 성별 제한 조건
 	if (pItemDesc->m_nResSex != -1)
 	{
-		int tempSex = nPlayerSex;
-		if(tempSex == MMS_MALE10){
-			tempSex = MMS_MALE;
-		}
-		if(tempSex == MMS_FEMALE10){
-			tempSex = MMS_FEMALE;
-		}
-		
-		if (pItemDesc->m_nResSex != tempSex) return false;
+		if (pItemDesc->m_nResSex != int(nPlayerSex)) return false;
 	}
 
 	if (MGetServerConfig()->GetServerMode() != MSM_EVENT) {	// EVENT때 레벨제한 없이 장착한다

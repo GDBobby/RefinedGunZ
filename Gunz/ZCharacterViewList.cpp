@@ -136,7 +136,6 @@ void ZCharacterViewList::Add(MMatchObjCache* pCache)
 	{
 		nItemids[i] = pCache->GetCostume()->nEquipedItemID[i];
 	}
-
 	Add(pCache->GetUID(), pCache->GetName(), pCache->GetCostume()->nSex,
 		pCache->GetCostume()->nHair, pCache->GetCostume()->nFace, pCache->GetLevel(),
 		nItemids, !pCache->CheckFlag(MTD_PlayerFlags_BridgePeer));
@@ -217,7 +216,6 @@ void ZCharacterViewList::Assign(MMatchObjCacheMap* pObjCacheMap)
 
 		Add(pObj);
 	}
-
 	ZGetGameClient()->OutputMessage("CharacterViewList Assign", MZMOM_LOCALREPLY);
 }
 
@@ -292,11 +290,14 @@ void ZCharacterViewList::ChangeMyCharacterInfo()
 			nItemids[i] = pil->GetEquipedItemID(MMatchCharItemParts(i));
 		}
 
+		/* doesn't work?
 		int sex = pmi->GetSex();
 		int hair = pmi->GetHair();
 		int face = pmi->GetFace();
+		*/
 
 		if(GetLobbyCharShopViewer()) {
+			//GetLobbyCharShopViewer()->InitCharParts(sex, hair, face, nItemids); ??
 			GetLobbyCharShopViewer()->InitCharParts(pmi->GetSex(), pmi->GetHair(), pmi->GetFace(), nItemids);
 		}
 

@@ -590,16 +590,22 @@ catch (const SQLiteError& e)
 int SQLiteDatabase::CreateCharacter(int AID, const char * NewName, int CharIndex, int Sex, int Hair, int Face, int Costume)
 try
 {
-
+	//MessageBox(NULL, "SQL try with create Character 1", "gender", 0);
 	auto stmt = ExecuteSQL("SELECT COUNT(*) AS NUM FROM Character WHERE Name = ?", NewName);
 
 	if (!stmt.HasRow())
 		return MERR_UNKNOWN;
 
+	//MessageBox(NULL, "SQL try with create Character 2", "gender", 0);
+
 	if (stmt.Get<int>() > 0)
 		return MERR_CLIENT_EXIST_CHARNAME;
 
+	//MessageBox(NULL, "SQL try with create Character 3", "gender", 0);
+
 	auto Trans = BeginTransaction();
+
+	//MessageBox(NULL, "SQL try with create Character 4", "gender", 0);
 
 	ExecuteSQL("INSERT INTO Character (AID, Name, CharNum, Level, Sex, Hair, Face, XP, BP, "
 		"GameCount, KillCount, DeathCount, RegDate, PlayTime, DeleteFlag) "
@@ -607,13 +613,21 @@ try
 		"0, 0, 0, date('now'), 0, 0)",
 		AID, NewName, CharIndex, Sex, Hair, Face);
 
+	//MessageBox(NULL, "SQL try with create Character 5", "gender", 0);
+
 	auto CID = LastInsertedRowID();
+
+	//MessageBox(NULL, "SQL try with create Character 6", "gender", 0);
 
 	std::pair<int, int> Clothes[2][2] = { { { MMCIP_CHEST, 21001 },{ MMCIP_LEGS, 23001 }},
 	{{ MMCIP_CHEST, 21501 },{ MMCIP_LEGS, 23501 }} };
 	std::pair<int, int> Weapons[] = { { MMCIP_MELEE, 2 }, { MMCIP_PRIMARY, 5002 } };
 
+	//MessageBox(NULL, "SQL try with create Character 7", "gender", 0);
+
 	ItemBlob Items{};
+
+	//MessageBox(NULL, "SQL try with create Character 8", "gender", 0);
 
 	auto SetItem = [&](auto& Parts)
 	{
@@ -623,9 +637,19 @@ try
 		ExecuteSQL("INSERT INTO CharacterItem (CID, ItemID) VALUES (?, ?)", CID, ItemID);
 		auto CIID = static_cast<i32>(LastInsertedRowID());
 		Items.CIIDs[Index] = CIID;
+
+		//MessageBox(NULL, "SQL try with create Character pair", "gender", 0);
 	};
 
-	for (auto& Pair : Clothes[Sex])
+	int tempSex = Sex;
+	if (tempSex == MMS_MALE10) {
+		tempSex = MMS_MALE;
+	}
+	if (tempSex == MMS_FEMALE10) {
+		tempSex = MMS_FEMALE;
+	}
+
+	for (auto& Pair : Clothes[tempSex])
 		SetItem(Pair);
 	for (auto& Pair : Weapons)
 		SetItem(Pair);
@@ -633,12 +657,17 @@ try
 	ExecuteSQL("UPDATE Character SET Items = ? WHERE AID = ? AND CID = ?",
 		Blob{ &Items, sizeof(Items) }, AID, CID);
 
+	//MessageBox(NULL, "SQL try with create Character 9", "gender", 0);
+
 	CommitTransaction();
+
+	//MessageBox(NULL, "SQL try with create Character 10", "gender", 0);
 
 	return MOK;
 }
 catch (const SQLiteError& e)
 {
+	MessageBox(NULL, "SQL catch with create Character", "gender", 0);
 	HandleException(e);
 	return false;
 }

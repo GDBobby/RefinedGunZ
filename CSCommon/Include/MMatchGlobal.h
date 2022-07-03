@@ -125,7 +125,9 @@ enum MMatchPremiumGradeID
 enum MMatchSex
 {
 	MMS_MALE = 0,
-	MMS_FEMALE = 1
+	MMS_FEMALE = 1,
+	MMS_MALE10 = 2,
+	MMS_FEMALE10 = 3,
 };
 
 enum MMatchBlockType

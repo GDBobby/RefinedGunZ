@@ -220,9 +220,6 @@ void OutputCmdHelp(const char* cmd)
 	ZChatCmd* pCmd = pCCM->GetCommandByName(cmd);
 	if (pCmd == NULL) return;
 
-	if ( (pCmd->GetFlag() & CCF_ADMIN) && !ZGetMyInfo()->IsAdminGrade())
-		return;
-
     char szBuf[512];
 	sprintf_safe(szBuf, "%s: %s", pCmd->GetName(), pCmd->GetHelp());
 	ZChatOutput(szBuf, ZChat::CMT_SYSTEM);

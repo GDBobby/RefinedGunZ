@@ -13,10 +13,11 @@ const char* ZGetSexStr(MMatchSex nSex, bool bShort)
 	{
 		switch (nSex)
 		{
-		case MMS_MALE:		
+		case MMS_MALE10:
+		case MMS_MALE:
 			return ZMsg(MSG_WORD_MALE);
-
-		case MMS_FEMALE:	
+		case MMS_FEMALE10:
+		case MMS_FEMALE:
 			return ZMsg(MSG_WORD_FEMALE);
 		}
 	}
@@ -24,9 +25,10 @@ const char* ZGetSexStr(MMatchSex nSex, bool bShort)
 	{
 		switch (nSex)
 		{
+		case MMS_MALE10:
 		case MMS_MALE:		
 			return ZMsg(MSG_WORD_MALE_SHORT);
-
+		case MMS_FEMALE10:
 		case MMS_FEMALE:	
 			return ZMsg(MSG_WORD_FEMALE_SHORT);
 		}

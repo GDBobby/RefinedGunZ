@@ -9,7 +9,7 @@
 
 using namespace RealSpace2;
 
-static RAnimationMgr* AniMgrs[2];
+static RAnimationMgr* AniMgrs[4];
 
 ZANIMATIONINFO g_AnimationInfoTableLower[ZC_STATE_LOWER_END] = {
 	{ ""				,true	,true	,false 	,false },

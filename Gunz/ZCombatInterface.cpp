@@ -50,6 +50,7 @@ struct ZScoreBoardItem : public CMemPoolSm<ZScoreBoardItem>{
 	MUID uidUID;
 	char szName[64];
 	char szClan[CLAN_NAME_LENGTH];
+	char szGender[64];
 	int nDuelQueueIdx;
 	int	nClanID;
 	int nTeam;
@@ -65,11 +66,12 @@ struct ZScoreBoardItem : public CMemPoolSm<ZScoreBoardItem>{
 	MCOLOR SpColor;
 	bool  bSpColor;
 
-	ZScoreBoardItem( const MUID& _uidUID, char *_szName,char *_szClan,int _nTeam,bool _bDeath,int _nExp,int _nKills,int _nDeaths,int _nPing,bool _bMyChar,bool _bGameRoomUser, bool _bCommander = false)
+	ZScoreBoardItem( const MUID& _uidUID, char *_szName,char *_szClan, char *_szGender, int _nTeam,bool _bDeath,int _nExp,int _nKills,int _nDeaths,int _nPing,bool _bMyChar,bool _bGameRoomUser, bool _bCommander = false)
 	{
 		uidUID=_uidUID;
 		strcpy_safe(szName,_szName);
 		strcpy_safe(szClan,_szClan);
+		strcpy_safe(szGender, _szGender);
 		nTeam=_nTeam;
 		bDeath=_bDeath;
 		nExp=_nExp;
@@ -536,11 +538,22 @@ void ZCombatInterface::OnDraw(MDrawContext* pDC)
 #ifdef DRAW_HPAP_NUMBERS
 		sprintf_safe(buffer, "%d", pCharacter->GetHP());
 		TextRelative(pDC, 84.f / 800.f, 24.f / 600.f, buffer);
-		sprintf_safe(buffer, "%d", pCharacter->GetAP());
-		TextRelative(pDC, 84.f / 800.f, 51.f / 600.f, buffer);
+
+
+		//BOBBYCODE REPLACED AP WITH OPPONENTS HP, ONLY WORKS IN DUEL ROOMS
+		ZRuleDuel* pDuel = (ZRuleDuel*)ZGetGameInterface()->GetGame()->GetMatch()->GetRule();
+		for (ZCharacterManager::iterator itor = ZGetCharacterManager()->begin(); itor != ZGetCharacterManager()->end(); ++itor)
+		{
+			ZCharacter* pOpponent = (*itor).second;
+			if (((pOpponent->GetUID() == pDuel->QInfo.m_uidChampion) || (pOpponent->GetUID() == pDuel->QInfo.m_uidChallenger)) && (pOpponent != pCharacter))
+			{
+				sprintf_safe(buffer, "%d", pOpponent->GetHP());
+				TextRelative(pDC, (800.f - 84.f) / 800.f, 24.f / 600.f, buffer);
+			}
+		}
 #endif
 
-		if ( ZApplication::GetGame()->GetMatch()->GetMatchType() == MMATCH_GAMETYPE_DUEL)
+		if ( ZApplication::GetGame()->GetMatch()->GetMatchType() == MMATCH_GAMETYPE_TOURNAMENT)
 		{
 			char	charName[ 3][ 32];
 			charName[0][0] = charName[1][0] = charName[2][0] = 0;
@@ -647,6 +660,115 @@ void ZCombatInterface::OnDraw(MDrawContext* pDC)
 			pDC->TextRelative(80.0f / 800.f, nPosY, charName[1]);
 			nPosY += 15.f / MGetWorkspaceHeight();
 		}
+		if (ZApplication::GetGame()->GetMatch()->GetMatchType() == MMATCH_GAMETYPE_DUEL)
+		{
+			char	charName[3][32];
+			charName[0][0] = charName[1][0] = charName[2][0] = 0;
+
+			MFont* pFont = MFontManager::Get("FONTa10_O2Wht");
+			if (pFont == NULL)
+				_ASSERT(0);
+			pDC->SetFont(pFont);
+			pDC->SetColor(MCOLOR(0xFFFFFFFF));
+
+			bool bIsChallengerDie = false;
+			int nMyChar = -1;
+
+			ZRuleDuel* pDuel = (ZRuleDuel*)ZGetGameInterface()->GetGame()->GetMatch()->GetRule();
+			if (pDuel)
+			{
+				for (ZCharacterManager::iterator itor = ZGetCharacterManager()->begin();
+					itor != ZGetCharacterManager()->end(); ++itor)
+				{
+					ZCharacter* pCharacter = (*itor).second;
+
+					// Player
+					if (pCharacter->GetUID() == pDuel->QInfo.m_uidChampion)
+					{
+						if (ZGetMyUID() == pDuel->QInfo.m_uidChampion)
+						{
+							// Draw victory
+							ZGetCombatInterface()->DrawVictory(pDC, 210, 86, pDuel->QInfo.m_nVictory);
+						}
+						else
+						{
+							sprintf_safe(charName[0], "%s%d  %s", ZMsg(MSG_CHARINFO_LEVELMARKER),
+								pCharacter->GetProperty()->nLevel, pCharacter->GetUserName());
+
+							if ((ZGetMyUID() == pDuel->QInfo.m_uidChampion)
+								|| (ZGetMyUID() == pDuel->QInfo.m_uidChallenger))
+							{
+								// Draw victory
+								int nTextWidth = pFont->GetWidth(charName[0]);
+								int nWidth = ZGetCombatInterface()->DrawVictory(pDC, 162, 300,
+									pDuel->QInfo.m_nVictory, true);
+								ZGetCombatInterface()->DrawVictory(pDC, 43 + nTextWidth + nWidth, 157,
+									pDuel->QInfo.m_nVictory);
+							}
+						}
+					}
+
+					else if (pCharacter->GetUID() == pDuel->QInfo.m_uidChallenger)
+					{
+						if (ZGetMyUID() != pDuel->QInfo.m_uidChallenger)
+							sprintf_safe(charName[0], "%s%d  %s", ZMsg(MSG_CHARINFO_LEVELMARKER),
+								pCharacter->GetProperty()->nLevel, pCharacter->GetUserName());
+
+						bIsChallengerDie = pCharacter->IsDead();
+					}
+
+					// Waiting 1
+					else if (pCharacter->GetUID() == pDuel->QInfo.m_WaitQueue[0])
+						sprintf_safe(charName[1], "%s%d  %s", ZMsg(MSG_CHARINFO_LEVELMARKER),
+							pCharacter->GetProperty()->nLevel, pCharacter->GetUserName());
+
+					// Waiting 2
+					else if (pCharacter->GetUID() == pDuel->QInfo.m_WaitQueue[1])
+						sprintf_safe(charName[2], "%s%d  %s", ZMsg(MSG_CHARINFO_LEVELMARKER),
+							pCharacter->GetProperty()->nLevel, pCharacter->GetUserName());
+				}
+			}
+
+			MBitmap* pBitmap = MBitmapManager::Get("duel-mode.tga");
+			if (pBitmap)
+			{
+				pDC->SetBitmap(pBitmap);
+
+				float nIcon = 50.0f;
+				pDC->DrawRelative(8.0f / 800.f, 153.0f / 600.f, nIcon, nIcon);
+			}
+
+			pBitmap = MBitmapManager::Get("icon_play.tga");
+			if (pBitmap && (charName[1][0] != 0))
+			{
+				pDC->SetBitmap(pBitmap);
+
+				float nIcon = 22.0f;
+				pDC->DrawRelative(60.0f / 800.f, 175.0f / 600.f, nIcon, nIcon);
+				pDC->DrawRelative(53.0f / 800.f, 175.0f / 600.f, nIcon, nIcon);
+			}
+
+			MCOLOR color;
+
+			int nTime = GetGlobalTimeMS() % 200;
+			if (nTime < 100)
+				pDC->SetColor(MCOLOR(0xFFFFFF00));
+			else
+				pDC->SetColor(MCOLOR(0xFFA0A0A0));
+
+			if (bIsChallengerDie)
+				pDC->SetColor(MCOLOR(0xFF808080));
+
+			float nPosY = 160.0f / 600.f;
+			pDC->TextRelative(60.0f / 800.f, nPosY, charName[0]);
+
+			pDC->SetColor(MCOLOR(0xFF808080));
+			nPosY += 20.f / MGetWorkspaceHeight();
+			pDC->TextRelative(80.0f / 800.f, nPosY, charName[1]);
+			nPosY += 15.f / MGetWorkspaceHeight();
+		}
+
+
 	}
 
 
@@ -1067,32 +1189,46 @@ void ZCombatInterface::Update()
 */
 	if(g_pGame&&g_pGame->GetMatch())
 	{
-		fCur = (float)pCharacter->GetHP();
-		fMax = (float)pCharacter->GetProperty()->fMaxHP;
+			fCur = (float)pCharacter->GetHP();
+			fMax = (float)pCharacter->GetProperty()->fMaxHP;
 
-		if( fCur!=0.f && fMax!=0.f )	fGuage = fCur/fMax;
-		else							fGuage = 0.f;
+			if (fCur != 0.f && fMax != 0.f)	fGuage = fCur / fMax;
+			else							fGuage = 0.f;
 
-		if( g_pGame->GetMatch()->GetCurrRound()==0 && 
-			g_pGame->GetMatch()->GetRoundState()==MMATCH_ROUNDSTATE_PREPARE)
-			fGuage = 100.f;
+			if (g_pGame->GetMatch()->GetCurrRound() == 0 &&
+				g_pGame->GetMatch()->GetRoundState() == MMATCH_ROUNDSTATE_PREPARE)
+				fGuage = 100.f;
 
-		ZGetScreenEffectManager()->SetGuage_HP(fGuage);
+			ZGetScreenEffectManager()->SetGuage_HP(fGuage);
 
-		fCur = (float)pCharacter->GetAP();
-		fMax = (float)pCharacter->GetProperty()->fMaxAP;
+			ZRuleDuel* pDuel = (ZRuleDuel*)ZGetGameInterface()->GetGame()->GetMatch()->GetRule();
 
-		if( fCur!=0.f && fMax!=0.f )	fGuage = fCur/fMax;
-		else							fGuage = 0.f;
-		
+			for (ZCharacterManager::iterator itor = ZGetCharacterManager()->begin(); itor != ZGetCharacterManager()->end(); ++itor)
+			{
+				ZCharacter* pOpponent = (*itor).second;
 
-		ZGetScreenEffectManager()->SetGuage_AP(fGuage);
+				// Champion
+				if (((pOpponent->GetUID() == pDuel->QInfo.m_uidChampion) || (pOpponent->GetUID() == pDuel->QInfo.m_uidChallenger)) && (pOpponent != pCharacter))
+				{
+					fCur = (float)pOpponent->GetHP();
+					fMax = (float)pOpponent->GetProperty()->fMaxHP;
 
+					if (fCur != 0.f && fMax != 0.f)	fGuage = fCur / fMax;
+					else							fGuage = 0.f;
+
+					if (g_pGame->GetMatch()->GetCurrRound() == 0 &&
+						g_pGame->GetMatch()->GetRoundState() == MMATCH_ROUNDSTATE_PREPARE)
+						fGuage = 100.f;
+
+					ZGetScreenEffectManager()->SetGuage_AP(fGuage);
+					
+				}
+			}
 	} 
 	else {
 
 		ZGetScreenEffectManager()->SetGuage_HP(fGuage);
-		ZGetScreenEffectManager()->SetGuage_AP(fGuage);
+		//ZGetScreenEffectManager()->SetGuage_AP(fGuage);
 	}
 
 	MMatchWeaponType wtype = MWT_NONE;
@@ -1120,7 +1256,7 @@ void ZCombatInterface::Update()
 		SetItemName( pSelectedItemDesc->m_szName );
 	}
 
-	UpdateCombo(pCharacter);
+	//UpdateCombo(pCharacter);
 
 	m_Chat.Update();
 	m_AdminMsg.Update();
@@ -1363,6 +1499,7 @@ bool CompareZScoreBoardItem(ZScoreBoardItem* a,ZScoreBoardItem* b) {
 typedef list<ZScoreBoardItem*> ZSCOREBOARDITEMLIST;
 void ZCombatInterface::DrawScoreBoard(MDrawContext* pDC)
 {
+
 	bool bClanGame = ZGetGameClient()->IsLadderGame();
 //	bool bClanGame = true;
 
@@ -1551,8 +1688,10 @@ void ZCombatInterface::DrawScoreBoard(MDrawContext* pDC)
 	}
 	TextRelative( pDC, x, y, szText);
 
-	const float normalXPOS[6] = {0.28f, 0.47f, 0.67f, 0.78f, 0.84f, 0.93f};
-	const float clanXPOS[6]   = {0.44f, 0.24f, 0.67f, 0.76f, 0.82f, 0.91f};
+
+	//BOBBYCODE ADDING GENDER
+	const float normalXPOS[7] = {0.28f, 0.47f, 0.67f, 0.78f, 0.84f, 0.93f, 0.5f};
+	const float clanXPOS[7]   = {0.44f, 0.24f, 0.67f, 0.76f, 0.82f, 0.91f, 0.5f};
 	
 	const float *ITEM_XPOS = bClanGame ? clanXPOS : normalXPOS;
 
@@ -1564,8 +1703,13 @@ void ZCombatInterface::DrawScoreBoard(MDrawContext* pDC)
 	x = ITEM_XPOS[0];	// level
 	sprintf_safe( szBuff, "%s   %s", ZMsg(MSG_CHARINFO_LEVEL), ZMsg(MSG_CHARINFO_NAME));
 	TextRelative(pDC,x,y, szBuff);
-	x = ITEM_XPOS[1] + .02f;;	// Clan
+	x = ITEM_XPOS[1] + .02f;	// Clan
 	TextRelative(pDC,x,y, ZMsg(MSG_CHARINFO_CLAN));
+	
+	//COMMENT OUT FOR NOW
+	//x = ITEM_XPOS[7];
+	//TextRelative(pDC, x, y, pItem->szGender);
+
 	if ( ZGetGameTypeManager()->IsQuestDerived( g_pGame->GetMatch()->GetMatchType()))
 	{
 		x = ITEM_XPOS[2];	// HP/AP
@@ -1647,6 +1791,22 @@ void ZCombatInterface::DrawScoreBoard(MDrawContext* pDC)
 			pItem->SetColor(ZCOLOR_ADMIN_NAME);
 
 		memcpy(pItem->szClan,pCharacter->GetProperty()->szClanName,CLAN_NAME_LENGTH);
+
+		
+		if (pCharacter->GetProperty()->nSex == MMS_MALE) {
+			sprintf_safe(pItem->szGender, "1.5 male");
+		}
+		else if (pCharacter->GetProperty()->nSex == MMS_FEMALE) {
+			sprintf_safe(pItem->szGender, "1.5 female");
+		}
+		else if (pCharacter->GetProperty()->nSex == MMS_MALE10) {
+			sprintf_safe(pItem->szGender, "1.0 male");
+		}
+		else if (pCharacter->GetProperty()->nSex == MMS_FEMALE10) {
+			sprintf_safe(pItem->szGender, "1.0 female");
+		}
+		//ZChatOutputF("Gender : %s", pItem->szGender);
+		
 		
 		pItem->nClanID = pCharacter->GetClanID();
 		pItem->nTeam = ZApplication::GetGame()->GetMatch()->IsTeamPlay() ? pCharacter->GetTeamID() : MMT_END;
@@ -1814,6 +1974,9 @@ void ZCombatInterface::DrawScoreBoard(MDrawContext* pDC)
 		float texty= itemy + (linespace - (float)pFont->GetHeight() / (float)MGetWorkspaceHeight())*.5f;
 		x = ITEM_XPOS[0];
 		TextRelative(pDC,x,texty,pItem->szName);
+
+		x = 0.4f;
+		TextRelative(pDC, x, texty, pItem->szGender);
 
 		if(!bClanGame)
 		{
@@ -2892,7 +3055,8 @@ void ZCombatInterface::GameCheckPickCharacter()
 		if(pMyChar->m_pVMesh->m_vRotXYZ.y < -25.f)
 			bPick = true;
 
-		if( pMyChar->IsMan() ) {
+		//MessageBox(NULL, "GameCheckPickChar", "gender", 0);
+		if( (pMyChar->IsMan() == MMS_MALE)  || (pMyChar->IsMan() == MMS_MALE10)) {
 			if( pMyChar->m_pVMesh->m_vRotXYZ.x < -20.f) {
 				if( RCameraDirection.z < -0.2f)
 					bPick = true;

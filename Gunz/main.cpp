@@ -389,8 +389,7 @@ RRESULT OnRender(void *pParam)
 			PrintText("FPS: %d", VisualFPSLimiter.LastFPS);
 			PrintText("TPS: %d", LogicalFPSLimiter.LastFPS);
 
-			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
-			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
+
 			//PrintText("Check wall thingy : %s,", invulnWall);
 		}
 		else
@@ -403,6 +402,9 @@ RRESULT OnRender(void *pParam)
 		if (ZGetConfiguration()->GetShowDebugInfo() &&
 			ZGetGame() && ZGetGame()->m_pMyCharacter)
 		{
+			PrintText("Tick Difference: %d", g_App.appCounter - g_App.frameCounter);
+			PrintText("Appliation Update Rate: %d", static_cast<int>(g_App.TotalElapsedTime * 10000));
+
 			const auto& CharPos = ZGetGame()->m_pMyCharacter->GetPosition();
 			PrintText("Pos: %d, %d, %d", int(CharPos.x), int(CharPos.y), int(CharPos.z));
 			const auto& CharDir = ZGetGame()->m_pMyCharacter->GetDirection();
@@ -414,6 +416,10 @@ RRESULT OnRender(void *pParam)
 			auto* vmesh = ZGetGame()->m_pMyCharacter->m_pVMesh;
 			if (vmesh)
 			{
+				if (vmesh->m_pMesh) {
+					PrintText("Gender Mesh : %s", vmesh->m_pMesh->GetName());
+				}
+
 				const auto& HeadPos = vmesh->GetHeadPosition();
 				PrintText("Head pos: %d, %d, %d", int(HeadPos.x), int(HeadPos.y), int(HeadPos.z));
 

@@ -3351,7 +3351,17 @@ int ZGameInterface::CheckRestrictBringAccountItem()
 		MMatchItemDesc* pItemDesc = MGetMatchItemDescMgr()->GetItemDesc(nItemID);
 		if (pItemDesc == NULL)
 			return -1;	// Item Not Found
-		if ((pItemDesc->m_nResSex != -1) && (ZGetMyInfo()->GetSex() != pItemDesc->m_nResSex))
+
+		//BOBBYCODE GENDEr
+		MMatchSex tempSex = ZGetMyInfo()->GetSex();
+		if (tempSex == MMS_MALE10) {
+			tempSex = MMS_MALE;
+		}
+		if (tempSex == MMS_FEMALE10) {
+			tempSex = MMS_FEMALE;
+		}
+		
+		if ((pItemDesc->m_nResSex != -1) && (tempSex != pItemDesc->m_nResSex))
 			return 1;	// Sex restricted
 		if (ZGetMyInfo()->GetLevel() < pItemDesc->m_nResLevel)
 			return 2;	// Level restricted
@@ -4975,9 +4985,9 @@ string GetRestrictionString(MMatchItemDesc* pItemDesc)
 
 	if (pItemDesc->m_nResSex != -1)
 	{
-		if (pItemDesc->m_nResSex == 0)
+		if (pItemDesc->m_nResSex == MMS_MALE)
 			sprintf_safe(temp, "%s\n", ZMsg(MSG_WORD_FORMEN));
-		else if (pItemDesc->m_nResSex == 1)
+		else if (pItemDesc->m_nResSex == MMS_FEMALE)
 			sprintf_safe(temp, "%s\n", ZMsg(MSG_WORD_FORWOMEN));
 		str += temp;
 	}

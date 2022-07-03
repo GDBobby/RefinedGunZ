@@ -154,7 +154,15 @@ bool ZItemSlotView::IsEquipableItem(u32 nItemID, int nPlayerLevel, MMatchSex nPl
 	// 성별 제한 조건
 	if (pItemDesc->m_nResSex != -1)
 	{
-		if (pItemDesc->m_nResSex != int(nPlayerSex)) return false;
+		MMatchSex tempSex = nPlayerSex;
+		if (tempSex == MMS_MALE10) {
+			tempSex = MMS_MALE;
+		}
+		if (tempSex == MMS_FEMALE10) {
+			tempSex = MMS_FEMALE;
+		}
+
+		if (pItemDesc->m_nResSex != int(tempSex)) return false;
 	}
 
 	// 레벨 제한 조건

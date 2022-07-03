@@ -581,6 +581,7 @@ class MSelectCharacterComboBoxListener : public MListener{
 public:
 	virtual bool OnCommand(MWidget* pWidget, const char* szMessage)
 	{
+		MessageBox(NULL, "TESTBOX", " gender ", 0);
 		if(MWidget::IsMsg(szMessage, MCMBBOX_CHANGED)==true)
 		{
 			ZIDLResource* pResource = ZApplication::GetGameInterface()->GetIDLResource();
@@ -1315,6 +1316,7 @@ BEGIN_IMPLEMENT_LISTENER(ZGetCreateCharacterButtonListener, MBTN_CLK_MSG)
 
 		ZPostCreateMyChar( ZGetGameClient()->GetPlayerUID(), nEmptySlotIndex, (char*)pEdit->GetText(), pSexCB->GetSelIndex(),
 		                   pHairCB->GetSelIndex(), pFaceCB->GetSelIndex(), pCostumeCB->GetSelIndex());
+		
 
 	}
 END_IMPLEMENT_LISTENER()

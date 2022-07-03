@@ -362,7 +362,8 @@ bool ZMyBotCharacter::GetHistory(v3* Pos, v3* Dir, float Time, v3* CameraDir)
 	}
 
 	const auto GetItemDesc = [&](auto Slot) { return m_Items.GetDesc(Slot); };
-	const auto Sex = IsMan() ? MMS_MALE : MMS_FEMALE;
+	const auto Sex = IsMan();
+	MessageBox(NULL, "bot get history", "gender", 0);
 	const auto RelativeTime = Time - ReplayStartTime;
 
 	BasicInfoHistoryManager::Info Info;

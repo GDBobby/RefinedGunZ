@@ -32,7 +32,7 @@ bool LagCompManager::Create()
 
 	bool ret = false;
 	
-	ret = LoadAnimations("model/man/man01.xml", 0);
+	ret = LoadAnimations("model/man/man01.xml", MMS_MALE);
 	if (!ret)
 	{
 		Log("LoadAnimations0 failed!");
@@ -40,7 +40,7 @@ bool LagCompManager::Create()
 	}
 	Log("Loaded male animations");
 
-	ret = LoadAnimations("model/woman/woman01.xml", 1);
+	ret = LoadAnimations("model/woman/woman01.xml", MMS_FEMALE);
 	if (!ret)
 	{
 		Log("LoadAnimations1 failed!");
@@ -48,8 +48,30 @@ bool LagCompManager::Create()
 	}
 	Log("Loaded female animations");
 
+	ret = LoadAnimations("model/man1/man01.xml", MMS_MALE10);
+	if (!ret)
+	{
+		Log("LoadAnimations0 failed!");
+		return false;
+	}
+	Log("Loaded male1.0 animations");
+
+	ret = LoadAnimations("model/woman1/woman01.xml", MMS_FEMALE10);
+	if (!ret)
+	{
+		Log("LoadAnimations1 failed!");
+		return false;
+	}
+	Log("Loaded female1.0 animations");
+
+	MessageBox(NULL, "lag anim mgr1", "gender", 0);
+
 	SetAnimationMgr(MMS_MALE, &AniMgrs[MMS_MALE]);
 	SetAnimationMgr(MMS_FEMALE, &AniMgrs[MMS_FEMALE]);
+	SetAnimationMgr(MMS_MALE10, &AniMgrs[MMS_MALE10]);
+	SetAnimationMgr(MMS_FEMALE10, &AniMgrs[MMS_FEMALE10]);
+
+	//MessageBox(NULL, "lag anim mgr", "gender", 0);
 
 	for (auto& Map : g_MapDesc)
 	{

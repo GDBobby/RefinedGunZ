@@ -135,8 +135,7 @@ void MMatchServer::OnRequestCreateChar(const MUID& uidPlayer, const int nCharInd
 						 const unsigned int nSex, const unsigned int nHair, const unsigned int nFace, 
 						 const unsigned int nCostume)
 {
-	//BOBBYCODE y tho? gender
-	//MMatchSex sex = (nSex == 0) ? MMS_MALE : MMS_FEMALE;
+	MMatchSex sex = (nSex == 0) ? MMS_MALE : MMS_FEMALE;
 	ResponseCreateChar(uidPlayer, nCharIndex, szCharName, MMatchSex(nSex), nHair, nFace, nCostume);
 }
 
@@ -173,8 +172,6 @@ bool MMatchServer::ResponseCreateChar(const MUID& uidPlayer, const int nCharInde
 	}	
 
 	// 생성조건 통과 - Post AsyncJob
-
-	//MessageBox(NULL, "ASync Job 1", "Gender", 0);
 	MAsyncDBJob_CreateChar* pJob = new MAsyncDBJob_CreateChar(uidPlayer, pObj->GetAccountInfo()->m_nAID, 
 											szCharName, nCharIndex, nSex, nHair, nFace, nCostume);
 	
@@ -190,9 +187,9 @@ bool MMatchServer::ResponseCreateChar(const MUID& uidPlayer, const int nCharInde
 
 	mlog( ")  (len = %d)\n", (int)strlen( szCharName));
 #endif
-	//MessageBox(NULL, "ASync Job 2", "Gender", 0);
+
 	PostAsyncJob(pJob);
-	//MessageBox(NULL, "ASync Job 3", "Gender", 0);
+
 	return true;
 }
 

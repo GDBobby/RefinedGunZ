@@ -114,7 +114,7 @@ void ChangeCharFace(RVisualMesh* pVMesh, MMatchSex nSex, int nFaceIndex)
 
 	char szMeshName[256];
 	
-	if (nSex == MMS_MALE)
+	if (nSex == MMS_MALE || nSex == MMS_MALE10)
 	{
 		strcpy_safe(szMeshName, g_szFaceMeshName[nFaceIndex][MMS_MALE].c_str());
 	}
@@ -132,7 +132,7 @@ void ChangeCharHair(RVisualMesh* pVMesh, MMatchSex nSex, int nHairIndex)
 	if (pVMesh == NULL) return;
 
 	char szMeshName[256];
-	if (nSex == MMS_MALE)
+	if (nSex == MMS_MALE || nSex == MMS_MALE10)
 	{
 		strcpy_safe(szMeshName, g_szHairMeshName[nHairIndex][MMS_MALE].c_str());
 	}
@@ -630,8 +630,9 @@ void ZCharacter::UpdateMotion(float fDelta)
 //	}
 //}
 
-static void GetDTM(bool* pDTM,int mode,bool isman)
+static void GetDTM(bool* pDTM,int mode,MMatchSex isman)
 {
+	//MessageBox(NULL, "DTM???", "gender", 0);
 	if(!pDTM) return;
 
 		     if(mode==0) { pDTM[0]=true; pDTM[1]=false; }
@@ -676,7 +677,10 @@ void ZCharacter::CheckDrawWeaponTrack()
 	bDTM[0] = true;
 	bDTM[1] = true;
 
-	bool bMan = IsMan();
+	//BOBBYCODE changing isMan bool to MMatchSex, it's not even used in GetDTM?????
+	MMatchSex bMan = IsMan();
+
+	//MessageBox(NULL, "CheckDrawWeaponTrack", "gender", 0);
 
 	if(m_pVMesh->m_SelectWeaponMotionType == eq_wd_blade) 
 	{
@@ -751,8 +755,29 @@ void ZCharacter::UpdateSpWeapon()
 	}
 }
 
-bool ZCharacter::IsMan() const
+MMatchSex ZCharacter::IsMan() const
 {
+	/*
+	LPCSTR tempSexString;
+	if (m_Property.nSex == 0) {
+		tempSexString = "0";
+	}else if (m_Property.nSex == 1) {
+		tempSexString = "1";
+	}else if (m_Property.nSex == 2) {
+		tempSexString = "2";
+	}else if (m_Property.nSex == 3) {
+		tempSexString = "3";
+	}
+	else {
+		tempSexString = "WTF";
+	}
+	MessageBox(NULL, tempSexString, "isMan gender", 0);
+	*/
+	//ZChatOutputF("%s", m_Property.nSex); THIS CRASHES THE GAME
+	return m_Property.nSex;
+
+
+	/*
 	if(m_pVMesh) {
 		if(m_pVMesh->m_pMesh) {
 			if(strcmp(m_pVMesh->m_pMesh->GetName(),"heroman1")==0) {
@@ -761,7 +786,10 @@ bool ZCharacter::IsMan() const
 		}
 	}
 	return false;
+	*/
 }
+	
+
 
 void ZCharacter::OnDraw()
 {
@@ -1475,7 +1503,9 @@ bool ZCharacter::GetHistory(rvector *pos, rvector *direction, float fTime, rvect
 	auto GetItemDesc = [&](auto slot) {
 		return m_Items.GetDesc(slot); };
 
-	const auto Sex = IsMan() ? MMS_MALE : MMS_FEMALE;
+	const auto Sex = IsMan();
+
+	//MessageBox(NULL, "GetHistory", "gender", 0);
 
 	BasicInfoHistoryManager::Info Info;
 	Info.Pos = pos;
@@ -1656,7 +1686,7 @@ void ZCharacter::UpdateSound()
 
 	if ( m_bDamaged && (!IsDead()) && (GetHP() < 30.f))
 	{
-		if(GetProperty()->nSex==MMS_MALE)
+		if((GetProperty()->nSex) == MMS_MALE || GetProperty()->nSex == MMS_MALE10)
 		{
 #ifdef _BIRDSOUND
 			ZGetSoundEngine()->PlaySoundCharacter("ooh_male",m_Position,IsObserverTarget());
@@ -1797,7 +1827,8 @@ void ZCharacter::InitStatus()
 
 void ZCharacter::TestChangePartsAll()
 {
-	if( IsMan() ) {
+	MessageBox(NULL, "TestChangePartsAll", "gender", 0);
+	if( (IsMan() == MMS_MALE) || IsMan() == MMS_MALE10  ) {
 
 		OnChangeParts(eq_parts_chest,0);
 		OnChangeParts(eq_parts_head	,0);
@@ -2087,6 +2118,7 @@ void ZCharacter::OutputDebugString_CharacterState()
 
 void ZCharacter::TestToggleCharacter()
 {
+	MessageBox(NULL, "toggle char", "this shouldnt happen", 0);
 	if(m_pVMesh->m_pMesh) {
 
 		RMesh* pMesh = NULL;
@@ -2111,7 +2143,7 @@ void ZCharacter::InitMesh()
 	RMesh* pMesh;
 
 	char szMeshName[64];
-	if (m_Property.nSex == MMS_MALE)
+	if ((m_Property.nSex == MMS_MALE) || (m_Property.nSex == MMS_MALE10))
 	{
 		strcpy_safe(szMeshName, "heroman1");
 	}
@@ -2886,7 +2918,7 @@ void ZCharacter::HandleDamage(ZObject* pAttacker, rvector srcPos, ZDAMAGETYPE da
 
 void ZCharacter::OnScream()
 {
-	if(GetProperty()->nSex==MMS_MALE)
+	if ((GetProperty()->nSex == MMS_MALE) || (GetProperty()->nSex == MMS_MALE10))
 		ZGetSoundEngine()->PlaySound("ooh_male",m_Position,IsObserverTarget());
 	else			
 		ZGetSoundEngine()->PlaySound("ooh_female",m_Position,IsObserverTarget());
